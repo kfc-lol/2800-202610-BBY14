@@ -1,6 +1,8 @@
-<%- include('partials/header', {title: 'GroCrop',cssFiles: ['landingpage.css'], topNavBar: true}) %>
+<%- include('partials/header', {title: 'GroCrop',cssFiles: ['landingpage.css', 'styles.css'], topNavBar: false}) %>
       <div class="content">
-        <h1>Hello, user.</h1>
-        <p>Welcome to GroCrop!</p>
+        <p id="welcome-text">Welcome to GroCrop!</p>
+        <p>Find out what grows well where you are, 
+          and get the guidance you need to make it work.</p>
+        <a href="signup" id="get-started-button">Get Started</a>
       </div>
-<%- include('partials/footer', { jsFiles: [], botNavBar: true }) %>
+<%- include('partials/footer', { jsFiles: [], botNavBar: false }) %>

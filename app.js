@@ -16,14 +16,20 @@ const port = process.env.PORT || 3000;
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
-const mongodb_user_database = process.env.MONGODB_USER_DATABASE;
-const mongodb_session_database = process.env.MONGODB_SESSION_DATABASE;
+const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 //
 
 const { database } = include("public/js/databaseConnection");
-const userCollection = database.db(mongodb_user_database).collection("users");
+const userCollection = database.db(mongodb_database).collection("users");
+/*
+ - for creating a user 
+await userCollection.insertOne({
+  username: username,
+  password: hashedPassword,
+});
+*/
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -35,7 +41,7 @@ app.set("view engine", "ejs");
 app.set("views", __dirname + "/app/views");
 
 var mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
   crypto: {
     secret: mongodb_session_secret,
   },
@@ -52,16 +58,26 @@ app.use(
 
 //---------//
 
-// Index
+// Index - New User Page
 app.get("/", (req, res) => {
   res.render("landingpage");
+  /* if user is authenticated, redirect to gardenpage */
 });
 
-// Color Indexes (example)
-app.get("/login", (req, res) => {});
+// Signup Page
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
 
-// Color Pages with Sizes (example)
-app.get("/signup", (req, res) => {});
+// Login Page
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+// Landing Page
+app.get("/gardenpage", (req, res) => {
+  res.render("gardenpage");
+});
 
 //---------//
 
