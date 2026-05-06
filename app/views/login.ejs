@@ -2,12 +2,10 @@
 <form action="/loginSubmit" method="POST">
     <input name="email" placeholder="email" /><br><br> 
     <input name="password" type="password" placeholder="password" /><br><br>
-    <button type="submit">Submit</button>
+    <button type="submit">Login</button>
     <% if (locals.errorMessage) { %>
         <p><%= errorMessage %></p>
     <% } %>
 </form>
 <p>If you do not have an account?</p>
-<a href ="signup" id ="Sign-Up-Button">
-    <button type="onclick">Sign-Up</button>
-</a>
+<a href ="signup" id ="Sign-Up-Button">Sign Up</a>
