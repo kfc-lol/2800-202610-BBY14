@@ -1,0 +1,19 @@
+    
+    <% if (botNavBar) { %>
+        <nav class="bottom-nav">
+            <button class="nav-btn">Home</button>
+            <button class="nav-btn">Garden</button>
+            <button class="nav-btn">Saved</button>
+        </nav>
+    </div>
+    <% } %>
+    
+    
+    <% if (jsFiles) { %>
+        <% for (const js of jsFiles) { %>
+            <script src="/js/<%= js %>"></script>
+        <% } %>
+    <% } %>
+    
+</body>
+</html>
