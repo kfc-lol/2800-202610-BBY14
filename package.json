@@ -6,9 +6,11 @@
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "joi": "^18.2.1"
+    "joi": "^18.2.1",
+    "mongodb": "^7.2.0",
+    "mongoose": "^9.6.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+      }
 }
