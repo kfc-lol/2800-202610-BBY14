@@ -61,19 +61,23 @@ app.get("/signup", (req, res) => {
     res.send(`
         <h1>Create User</h1>
         <form action="/signupSubmit" method="POST">
-            <input name="name" placeholder="name" /><br><br>
-            <input name="email" placeholder="email" /><br><br>
-            <input name="password" type="password" placeholder="password" /><br><br>
+            <input name="username" placeholder="username" /><br>
+            <p> username must be 5-20 character.</p>
+            <input name="email" placeholder="email" /><br>
+            <p> must be a valid email</p>
+            <input name="password" type="password" placeholder="password" /><br>
+            <p> password must be between 8-20 characters,  <br>
+            contain 1 uppercase and 1 lowercase letter, and atleast 1 number</p>
             <button type="submit">Submit</button>
         </form>
     `);
 });
 
 app.post("/signupSubmit", async (req, res) => {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     const schema = Joi.object({
-        name: Joi.string().max(50).required(),
+        username: Joi.string().min(5).max(50).required(),
         email: Joi.string().email().required(),
         password: Joi.string()
           .min(8)
@@ -88,21 +92,27 @@ app.post("/signupSubmit", async (req, res) => {
     })
     });
 
-    const validationResult = schema.validate({ name, email, password });
+    const validationResult = schema.validate({ username, email, password });
     if (validationResult.error) {
-        const message = validationResult.error.details[0].message;
-        res.send(`
+    const message = validationResult.error.details[0].message;
+    res.send(`
+        <h1>Create User</h1>
+        <form action="/signupSubmit" method="POST">
+            <input name="username" placeholder="username" /><br><br>
+            <input name="email" placeholder="email" /><br><br>
+            <input name="password" type="password" placeholder="password" /><br><br>
+            <button type="submit">Submit</button>
             <p>${message}</p>
-            <a href="/signup">Try again</a>
-        `);
-        return;
-    }
+        </form>
+    `);
+    return;
+}
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    await userCollection.insertOne({ name, email, password: hashedPassword });
+    await userCollection.insertOne({ username, email, password: hashedPassword });
 
     req.session.authenticated = true;
-    req.session.name = name;
+    req.session.name = username;
     res.redirect("/members");
 });
 
@@ -153,7 +163,7 @@ app.post("/loginSubmit", async (req, res) => {
     }
 
     req.session.authenticated = true;
-    req.session.name = user.name;
+    req.session.name = user.username;
     res.redirect("/members");
 });
 
@@ -182,5 +192,5 @@ app.get("*splat", (req, res) => {
 
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server running on port http://localhost:${port}`);
 });
