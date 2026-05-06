@@ -1,0 +1,17 @@
+.zoneInfoDropdown {
+    background: #ccc;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+/*Hides dropdowns by default*/
+.cardContent {
+    display: none;
+}
+
+/*toggle for showing/hiding dropdown*/
+.zoneInfoDropdown.active .cardContent {
+    display: block;
+}

@@ -79,6 +79,13 @@ app.get("/gardenpage", (req, res) => {
   res.render("gardenpage");
 });
 
+//Zone Page
+app.get("/zonepage", async (req, res) => {
+  const zoneCollection = database.db(mongodb_database).collection("zones");
+  const zones = await zoneCollection.find({}).toArray();
+  res.render('zonepage', { zones });
+});
+
 //---------//
 
 // Error 404 Page
