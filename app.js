@@ -69,9 +69,77 @@ app.get("/signup", (req, res) => {
   res.render("signup");
 });
 
+app.post("/signupSubmit", async (req, res) => {
+    const { username, email, password } = req.body;
+
+    const schema = Joi.object({
+        username: Joi.string().min(5).max(50).required(),
+        email: Joi.string().email().required(),
+        password: Joi.string()
+          .min(8)
+          .max(20)
+          .pattern(new RegExp('(?=.*[a-z])'))
+          .pattern(new RegExp('(?=.*[A-Z])'))
+          .pattern(new RegExp('(?=.*[0-9])'))
+          .required()
+          .messages({
+            'string.min': 'Password must be at least 8 characters.',
+            'string.pattern.base': 'Password must contain at least one uppercase letter and one number.'
+    })
+    });
+
+    const validationResult = schema.validate({ username, email, password });
+    if (validationResult.error) {
+    const message = validationResult.error.details[0].message;
+
+    res.render("signup", { message });
+    return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    await userCollection.insertOne({ username, email, password: hashedPassword });
+
+    req.session.authenticated = true;
+    req.session.name = username;
+    res.redirect("/gardenpage");
+});
+
 // Login Page
 app.get("/login", (req, res) => {
   res.render("login");
+});
+
+app.post("/loginSubmit", async (req, res) => {
+    const { email, password } = req.body;
+
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().max(20).required()
+    });
+
+    const validationResult = schema.validate({ email, password });
+
+    if (validationResult.error) {
+        const errorMessage = validationResult.error.details[0].message;
+        res.render("login", { errorMessage });
+        return;
+    }
+
+    const user = await userCollection.findOne({ email });
+    if (!user) {
+        res.render("login", { errorMessage: "Invalid email/password combination." });
+        return;
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+        res.render("login", { errorMessage: "Invalid email/password combination." });
+        return;
+    }
+
+    req.session.authenticated = true;
+    req.session.name = user.username;
+    res.redirect("/gardenpage");
 });
 
 // Landing Page
