@@ -98,9 +98,13 @@ app.post("/signupSubmit", async (req, res) => {
     res.send(`
         <h1>Create User</h1>
         <form action="/signupSubmit" method="POST">
-            <input name="username" placeholder="username" /><br><br>
-            <input name="email" placeholder="email" /><br><br>
-            <input name="password" type="password" placeholder="password" /><br><br>
+            <input name="username" placeholder="username" /><br>
+            <p> username must be 5-20 character.</p>
+            <input name="email" placeholder="email" /><br>
+            <p> must be a valid email</p>
+            <input name="password" type="password" placeholder="password" /><br>
+            <p> password must be between 8-20 characters,  <br>
+            contain 1 uppercase and 1 lowercase letter, and atleast 1 number</p>
             <button type="submit">Submit</button>
             <p>${message}</p>
         </form>
