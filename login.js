@@ -7,6 +7,8 @@ const Joi = require("joi");
 const { MongoClient } = require("mongodb");
 
 const app = express();
+app.set("view engine", "ejs");
+app.set("views", "./app/views");
 const port = process.env.PORT || 8000;
 const saltRounds = 12;
 
@@ -58,19 +60,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-    res.send(`
-        <h1>Create User</h1>
-        <form action="/signupSubmit" method="POST">
-            <input name="username" placeholder="username" /><br>
-            <p> username must be 5-20 character.</p>
-            <input name="email" placeholder="email" /><br>
-            <p> must be a valid email</p>
-            <input name="password" type="password" placeholder="password" /><br>
-            <p> password must be between 8-20 characters,  <br>
-            contain 1 uppercase and 1 lowercase letter, and atleast 1 number</p>
-            <button type="submit">Submit</button>
-        </form>
-    `);
+    res.render("signup");
 });
 
 app.post("/signupSubmit", async (req, res) => {
@@ -95,22 +85,10 @@ app.post("/signupSubmit", async (req, res) => {
     const validationResult = schema.validate({ username, email, password });
     if (validationResult.error) {
     const message = validationResult.error.details[0].message;
-    res.send(`
-        <h1>Create User</h1>
-        <form action="/signupSubmit" method="POST">
-            <input name="username" placeholder="username" /><br>
-            <p> username must be 5-20 character.</p>
-            <input name="email" placeholder="email" /><br>
-            <p> must be a valid email</p>
-            <input name="password" type="password" placeholder="password" /><br>
-            <p> password must be between 8-20 characters,  <br>
-            contain 1 uppercase and 1 lowercase letter, and atleast 1 number</p>
-            <button type="submit">Submit</button>
-            <p>${message}</p>
-        </form>
-    `);
+
+    res.render("signup",{ message });
     return;
-}
+    }
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     await userCollection.insertOne({ username, email, password: hashedPassword });
@@ -121,14 +99,7 @@ app.post("/signupSubmit", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    res.send(`
-        <h1>Log In</h1>
-        <form action="/loginSubmit" method="POST">
-            <input name="email" placeholder="email" /><br><br>
-            <input name="password" type="password" placeholder="password" /><br><br>
-            <button type="submit">Submit</button>
-        </form>
-    `);
+    res.render("login");
 });
 
 app.post("/loginSubmit", async (req, res) => {
@@ -140,29 +111,22 @@ app.post("/loginSubmit", async (req, res) => {
     });
 
     const validationResult = schema.validate({ email, password });
+
     if (validationResult.error) {
-        res.send(`
-            <p>Invalid email/password combination.</p>
-            <a href="/login">Try again</a>
-        `);
+        const errorMessage = validationResult.error.details[0].message;
+        res.render("login", { errorMessage });
         return;
     }
 
     const user = await userCollection.findOne({ email });
     if (!user) {
-        res.send(`
-            <p>Invalid email/password combination.</p>
-            <a href="/login">Try again</a>
-        `);
+        res.render("login", { errorMessage: "Invalid email/password combination." });
         return;
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-        res.send(`
-            <p>Invalid email/password combination.</p>
-            <a href="/login">Try again</a>
-        `);
+        res.render("login", { errorMessage: "Invalid email/password combination." });
         return;
     }
 

@@ -1,0 +1,9 @@
+<h1>Log In</h1>
+<form action="/loginSubmit" method="POST">
+    <input name="email" placeholder="email" /><br><br> 
+    <input name="password" type="password" placeholder="password" /><br><br>
+    <button type="submit">Submit</button>
+    <% if (locals.errorMessage) { %>
+        <p><%= errorMessage %></p>
+    <% } %>
+</form>
