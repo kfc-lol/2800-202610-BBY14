@@ -65,3 +65,6 @@
   border: none;
   cursor: pointer;
 }
+
+.error   { color: red; }
+.success { color: green; }
