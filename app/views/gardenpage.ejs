@@ -1,5 +1,34 @@
-<%- include('partials/header', {title: 'GroCrop',cssFiles: ['landingpage.css'], topNavBar: true}) %>
+<%- include('partials/header', {title: 'GroCrop',cssFiles: ['gardenpage.css'], topNavBar: true}) %>
       <div class="content">
-        <p>Hello, user.</p>
+        <p id="welcome-text">Hello, <%= name %>.</p>
       </div>
-<%- include('partials/footer', { jsFiles: [], botNavBar: true }) %>
+
+      <!-- Scroll Pane -->
+      <div class="searchbar">
+        <input type="text" id="crop-search" name="q" placeholder="Search for a crop..." oninput="filterCrops(this.value)">
+        <button id="crop-search-button" type="submit">Search</button>
+      </div>
+
+      <div class="scroll-pane">
+        <% for (let crop of crops) { %>
+          <div class="crop-card" id="crop-<%= crop.id %>">
+
+            <div class="card-grid" >
+              <img src="/img/placeholder.png" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
+              <h1 class="crop-name"><%= crop.name %></h1>
+              <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsaved-bookmark-icon">
+              <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-icon">
+            </div>
+
+            <p class="crop-zone">Zones: <%= crop.zones %></p>
+            
+            <% for (let info of crop.information) { %>
+              <p class="crop-title"> <%= info.title %> </p>
+              <p class="crop-info"> <%= info.content %> </p>
+            <% } %>
+
+          </div>
+        <% } %>
+      </div>
+
+<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js'], botNavBar: true }) %>
