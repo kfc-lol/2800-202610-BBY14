@@ -100,7 +100,7 @@ app.post("/signupSubmit", async (req, res) => {
 
   req.session.authenticated = true;
   req.session.name = username;
-  res.redirect("/gardenpage");
+  res.redirect("/locationrequestpage");
 });
 
 // Login Page
@@ -139,6 +139,15 @@ app.post("/loginSubmit", async (req, res) => {
     req.session.authenticated = true;
     req.session.name = user.username;
     res.redirect("/gardenpage");
+});
+// Location Request Page
+app.post("/locationSubmit", async (req, res) => {
+  const { city } = req.body;
+  const normalizedCity = city.trim().toLowerCase();
+
+  const zone = getZoneFromCity
+
+  res.redirect("/gardenpage");
 });
 
 // Landing Page
