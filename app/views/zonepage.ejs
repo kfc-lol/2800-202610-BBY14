@@ -1,0 +1,57 @@
+<%- include('partials/header', {title: 'GroCrop',cssFiles: ['zonePage.css'], topNavBar: false}) %>
+      <div class="content">
+
+        <!--card on what a microclimate is-->
+        <div class="zoneInfoDropdown" onClick = "toggleCard(this)">
+        
+            <!--The visible button-->
+            <div class = "cardHeader"><b>What is a Microclimate?</b></div>
+            
+            <!--The information that displays once dropdown is pressed-->
+            <div class = "cardContent">
+                <br>
+                <p>A microclimate is a small, localized atmospheric zone where weather conditions differ from those in surrounding areas. They can range in size from just a few metres to several kilometres. It forms due to variations in:</p>
+                
+                <ul style = "padding-left: 3em;">
+                    <li><b>Topography: </b>Valleys can trap cold air, while higher elevations may recieve more sunlight.</li>
+                    <li><b>Bodies of water: </b>Nearby water moderates temperatures because it heats and cools more slowly than land.</li>
+                    <li><b>Vegetation: </b>Forested areas tend to be cooler and more humid, whereas fields are warmer and drier.</li>
+                    <li><b>Human-made structures: </b>Buildings can block wind, asphalt retains heat, and large cities create localized air movements like updrafts and downdrafts</li>
+                </ul>
+
+                <br>
+                <p><b>Characteristics</b></p>
+
+                <p>They are defined by consistent, measurable differences in climate conditions compared to surrounding areas, such as temperature, humidity, wind patterns, or sunlight exposure.</p>
+            </div>
+        </div>
+
+        <!--Card on why it's important for gardening-->
+        <div class="zoneInfoDropdown" onClick = "toggleCard(this)">
+
+            <!--The visible button-->
+            <div class = "cardHeader"><b>Why is it an important factor when gardening?</b></div>
+
+            <!--The information that displays once dropdown is pressed-->
+            <div class = "cardContent">
+                <br>
+                <p>Understanding how microclimates affect your garden can make a significant difference in what you grow and how well it thrives. Factors like temperature, frost, sunlight, and soil all play a role in shaping your local growing conditions.</p>
+
+                <br>
+                <ul style="padding-left: 3em;">
+                <li><b>Temperature:</b> Differences in temperatures can change what you can grow because some crops need warmer, sunnier areas to thrive and in colder climates, they can die.</li>
+                <li><b>Frost:</b> Cold air can sink and collect in low spots, creating unexpected frosts. Gardens in areas prone to that can have their plants die because of these surprise frosts, and should grow crops that are planted closer to summer to avoid frosts.</li>
+                <li><b>Sun:</b> Access to sun can boost or hinder crops. Knowing how much sunlight your area gets decides which plants will thrive.</li>
+                <li><b>Growing Period:</b> Microclimates can lengthen or shorten your growing period, since some areas have access to longer warm times which can be ideal for some crops.</li>
+                <li><b>Soil:</b> Different soil types work for specific crops. Knowing which thrive in your soil type can enhance how well they grow.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!--Zone cards from database-->
+        <% zones.forEach(zone => { %>
+            <%- include('partials/zoneCard', { zone: zone }) %>
+        <% }) %>
+        
+      </div>
+<%- include('partials/footer', { jsFiles: ['zonePage.js'], botNavBar: false }) %>
