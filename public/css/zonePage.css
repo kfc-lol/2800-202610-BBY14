@@ -1,17 +1,24 @@
 .zoneInfoDropdown {
-    background: #ccc;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-
-/*Hides dropdowns by default*/
-.cardContent {
-    display: none;
+  background: #ccc;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-/*toggle for showing/hiding dropdown*/
+/* Hides content by default */
+.cardContent {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
+}
+
+/* Required: direct child must clip the overflow */
+.cardContent > * {
+  overflow: hidden;
+}
+
+/* Toggle for showing/hiding dropdown */
 .zoneInfoDropdown.active .cardContent {
-    display: block;
+  grid-template-rows: 1fr;
 }
