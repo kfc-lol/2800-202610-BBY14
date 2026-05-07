@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo").MongoStore;
+const { ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -30,6 +31,21 @@ await userCollection.insertOne({
   password: hashedPassword,
 });
 */
+
+// Extracted User Schema for usages in signup and editing.
+const usernameSchema = Joi.string().min(5).max(50).required();
+const emailSchema    = Joi.string().email().required();
+const passwordSchema = Joi.string()
+  .min(8)
+  .max(20)
+  .pattern(new RegExp('(?=.*[a-z])'))
+  .pattern(new RegExp('(?=.*[A-Z])'))
+  .pattern(new RegExp('(?=.*[0-9])'))
+  .required()
+  .messages({
+    'string.min': 'Password must be at least 8 characters.',
+    'string.pattern.base': 'Password must contain at least one uppercase letter and one number.'
+  });
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -70,38 +86,21 @@ app.get("/signup", (req, res) => {
 });
 
 app.post("/signupSubmit", async (req, res) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-    const schema = Joi.object({
-        username: Joi.string().min(5).max(50).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string()
-          .min(8)
-          .max(20)
-          .pattern(new RegExp('(?=.*[a-z])'))
-          .pattern(new RegExp('(?=.*[A-Z])'))
-          .pattern(new RegExp('(?=.*[0-9])'))
-          .required()
-          .messages({
-            'string.min': 'Password must be at least 8 characters.',
-            'string.pattern.base': 'Password must contain at least one uppercase letter and one number.'
-    })
-    });
+  const schema = Joi.object({ username: usernameSchema, email: emailSchema, password: passwordSchema });
+  const validationResult = schema.validate({ username, email, password });
 
-    const validationResult = schema.validate({ username, email, password });
-    if (validationResult.error) {
-    const message = validationResult.error.details[0].message;
+  if (validationResult.error) {
+    return res.render("signup", { message: validationResult.error.details[0].message });
+  }
 
-    res.render("signup", { message });
-    return;
-    }
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  await userCollection.insertOne({ username, email, password: hashedPassword });
 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    await userCollection.insertOne({ username, email, password: hashedPassword });
-
-    req.session.authenticated = true;
-    req.session.name = username;
-    res.redirect("/gardenpage");
+  req.session.authenticated = true;
+  req.session.name = username;
+  res.redirect("/gardenpage");
 });
 
 // Login Page
@@ -144,7 +143,55 @@ app.post("/loginSubmit", async (req, res) => {
 
 // Landing Page
 app.get("/gardenpage", (req, res) => {
+
+  if (!req.session.authenticated) {
+    return res.redirect("/login");
+  }
+
   res.render("gardenpage");
+});
+
+app.get("/profile", async (req, res) => {
+  if (!req.session.authenticated) {
+    return res.redirect("/login");
+  }
+
+  const user = await userCollection.findOne(
+    { username: req.session.name },
+    { projection: { password: 0 } }
+  );
+
+  res.render('profilepage', { user });
+});
+
+app.post("/updateProfile", async (req, res) => {
+  if (!req.session.authenticated) return res.redirect("/login");
+
+  const { username, email } = req.body;
+
+  const schema = Joi.object({ username: usernameSchema, email: emailSchema });
+  const validationResult = schema.validate({ username, email });
+
+  if (validationResult.error) {
+    const user = await userCollection.findOne({ username: req.session.name }, { projection: { password: 0 } });
+    return res.render("profilepage", {
+      user,
+      errorMessage: validationResult.error.details[0].message
+    });
+  }
+
+  await userCollection.updateOne(
+    { username: req.session.name },
+    { $set: { username, email } }
+  );
+
+  req.session.name = username;
+  res.redirect("/profile");
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
 });
 
 //---------//
