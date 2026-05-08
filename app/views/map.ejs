@@ -1,0 +1,24 @@
+<%- include('partials/header', {title: 'GroCrop', cssFiles: ['map.css'], topNavBar: false, useMap: true}) %>
+
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+    
+<div class="map-container">
+  <div class="content">
+    <div class="map-toggle">
+      <button id="btn-regular" class="active" onclick="switchView('regular')">Map</button>
+      <button id="btn-zones" onclick="switchView('zones')">Zones</button>
+    </div>
+    <div id="map"></div>
+  </div>
+</div>
+
+<% if (!featureChecklist.f_map) { %>
+  <%- include('partials/popup.ejs', { featureName: 'f_map' }) %>
+<% } %>
+
+<script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+<script>
+  const MAPTILER_KEY = "<%= MAPTILER_KEY %>";
+</script>
+
+<%- include('partials/footer', { jsFiles: ['map.js'], botNavBar: true, useMap: true }) %>

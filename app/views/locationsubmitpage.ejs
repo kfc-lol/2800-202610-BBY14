@@ -1,0 +1,44 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="/css/locationsubmitpage.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<div>
+  <div class="dropdown">
+    <label for="dropbtn">Where will you be gardening?</label><br>
+    <button onclick="toggleDropdown()" class="dropbtn">Select City</button>
+    <div id="cityDropdown" class="dropdown-content" style="display:none;">
+      <input type="text" placeholder="Search" id="citySearch" onkeyup="filterCities()" />
+      <% cities.forEach(c=> { %>
+        <a href="#" data-city="<%= c.name.toLowerCase() %>" data-zone="<%= c.zoneName %>" onclick="selectCity(this)">
+          <%= c.name %>
+        </a>
+        <% }) %>
+    </div>
+  </div>
+
+  <!-- Shows selected city and zone -->
+  <p id="selectedDisplay" style="display:none;">
+    <strong id="displayCity"></strong><br>
+    Your city is in Zone: <br> <strong id="displayZone"></strong>
+  </p>
+
+  <!-- Hidden form that submits the chosen city -->
+  <form action="/locationSubmit" method="POST">
+    <input type="hidden" name="city" id="cityInput" />
+    <button type="submit" id="submitBtn" style="display:none;">Continue</button>
+  </form>
+  <br>
+  <br>
+  <br>
+  <div class="zone-info">
+    <strong>Why we require your location?</strong>
+    <p>
+      We require your location to better help you <br>
+      find which crops grow in your area<br>
+      so you can have a more successful garden.
+    </p>
+  </div>
+  <script src="/js/location.js"></script>
+</div>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+
+    <!-- CSS Specific -->
+    
+    <% for (const css of cssFiles) { %>
+        <link rel="stylesheet" href="/css/<%= css %>">
+    <% } %>
+
+    <title><%= title %></title>
+</head>
+<body>
+  
+  <div class="app">
+    <% if (topNavBar) { %>
+    <!-- Navbar -->
+      <div class="topnavbar">
+        <button class="profile-btn" onclick="window.location.href='/profile'"><img id = "profile_pic" src = "/img/profile.png"></button>
+      </div>  
+    <% } %>
+    
