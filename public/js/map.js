@@ -1,4 +1,3 @@
-const MAPTILER_KEY = process.env.MAPTILER_KEY;
 
 const map = new maplibregl.Map({
   container: "map",

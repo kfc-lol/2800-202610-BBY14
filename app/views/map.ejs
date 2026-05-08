@@ -1,5 +1,7 @@
 <%- include('partials/header', {title: 'GroCrop', cssFiles: ['map.css'], topNavBar: false, useMap: true}) %>
 
+    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+    
 <div class="map-container">
   <div class="content">
     <div class="map-toggle">
@@ -19,7 +21,4 @@
   const MAPTILER_KEY = "<%= MAPTILER_KEY %>";
 </script>
 
-
-
-    
 <%- include('partials/footer', { jsFiles: ['map.js'], botNavBar: true, useMap: true }) %>
