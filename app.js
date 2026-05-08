@@ -92,24 +92,24 @@ app.get("/signuppage", (req, res) => {
   if (req.session.authenticated) return res.redirect('/gardenpage');
   res.render("signuppage");
 });
- 
+
 app.post("/signupSubmit", async (req, res) => {
   if (req.session.authenticated) return res.redirect('/gardenpage');
   const { username, email, password } = req.body;
- 
+
   const schema = Joi.object({
     username: usernameSchema,
     email: emailSchema,
     password: passwordSchema,
   });
   const validationResult = schema.validate({ username, email, password });
- 
+
   if (validationResult.error) {
     return res.render("signuppage", {
       message: validationResult.error.details[0].message,
     });
   }
- 
+
   const existingUser = await userCollection.findOne({ email });
   if (existingUser) {
     return res.render("signuppage", {
@@ -120,7 +120,7 @@ app.post("/signupSubmit", async (req, res) => {
   const featureChecklist = { f_savecrop: false, f_map: false, f_croptutorial: false };
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const result = await userCollection.insertOne({ username, email, password: hashedPassword, savedCrops: [], featureChecklist });
- 
+
   req.session.authenticated = true;
   req.session.name = username;
   req.session.userId = result.insertedId.toString(); 
@@ -132,44 +132,44 @@ app.get("/loginpage", (req, res) => {
   if (req.session.authenticated) return res.redirect('/gardenpage');
   res.render("loginpage");
 });
- 
+
 app.post("/loginSubmit", async (req, res) => {
   if (req.session.authenticated) return res.redirect('/gardenpage');
-  const { email, password } = req.body;
- 
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
+    const { email, password } = req.body;
+
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
-  });
- 
-  const validationResult = schema.validate({ email, password });
- 
-  if (validationResult.error) {
-    const errorMessage = validationResult.error.details[0].message;
+    });
+
+    const validationResult = schema.validate({ email, password });
+
+    if (validationResult.error) {
+        const errorMessage = validationResult.error.details[0].message;
     res.render("loginpage", { errorMessage });
-    return;
-  }
- 
-  const user = await userCollection.findOne({ email });
-  if (!user) {
+        return;
+    }
+
+    const user = await userCollection.findOne({ email });
+    if (!user) {
     res.render("loginpage", {
       errorMessage: "Invalid email/password combination.",
     });
-    return;
-  }
- 
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
+        return;
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
     res.render("loginpage", {
       errorMessage: "Invalid email/password combination.",
     });
-    return;
-  }
- 
-  req.session.authenticated = true;
-  req.session.name = user.username;
+        return;
+    }
+
+    req.session.authenticated = true;
+    req.session.name = user.username;
   req.session.userId = user._id.toString(); // store _id
-  res.redirect("/gardenpage");
+    res.redirect("/gardenpage");
 });
 
 //--//
@@ -235,30 +235,33 @@ app.get("/savedpage", async (req, res) => {
     ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
     : [];
 
-  res.render("savedpage", { user, savedCrops, savedCropData });
+    const featureChecklist = user.featureChecklist;
+    const popup = await tutorialsCollection.findOne({ page: "f_savedtutorial" });
+
+  res.render("savedpage", { user, savedCrops, savedCropData, featureChecklist, popup });
 });
 
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
- 
+
   const user = await userCollection.findOne(
     { _id: new ObjectId(req.session.userId) },
     { projection: { password: 0 } },
   );
- 
+
   res.render("profilepage", { user });
 });
- 
+
 app.post("/updateProfile", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
- 
+
   const { username, email } = req.body;
- 
+
   const schema = Joi.object({ username: usernameSchema, email: emailSchema });
   const validationResult = schema.validate({ username, email });
- 
+
   if (validationResult.error) {
     const user = await userCollection.findOne(
       { _id: new ObjectId(req.session.userId) },
@@ -281,16 +284,16 @@ app.post("/updateProfile", async (req, res) => {
       errorMessage: "An account with this email already exists."
     });
   }
- 
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
     { $set: { username, email } },
   );
- 
+
   req.session.name = username;
   res.redirect("/profile");
 });
- 
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
@@ -306,10 +309,10 @@ app.get("/zonepage", async (req, res) => {
 // Location Submit Page
 app.get("/locationsubmitpage", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
- 
+
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
- 
+
   const cities = zones.flatMap(z =>
     z.areas.split(",").map(a => ({
       name: a.trim(),
@@ -317,20 +320,20 @@ app.get("/locationsubmitpage", async (req, res) => {
       zoneName: z.zone
     }))
   ).sort((a, b) => a.name.localeCompare(b.name));
- 
+
   res.render("locationsubmitpage", { cities });
 });
- 
+
 app.post("/locationSubmit", async (req, res) => {
   const { city } = req.body;
- 
+
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
- 
+
   const matchedZone = zones.find(z =>
     z.areas.split(",").map(a => a.trim().toLowerCase()).includes(city)
   );
- 
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
     { $set: {
@@ -338,7 +341,7 @@ app.post("/locationSubmit", async (req, res) => {
         zone: matchedZone ? matchedZone.zone : null
     }}
   );
- 
+
   res.redirect("/gardenpage");
 });
 // Map Page

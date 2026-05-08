@@ -1,10 +1,16 @@
 <link rel="stylesheet" href="/css/popup.css">
 
 <div class="popup">
-    <h1 class="popup-title">popup title</h1>
-    <p class="popup-description">popup description</p>
-    <button class="popup-next">next</button>
-    <button class="popup-skip" id="<%= featureName %>">skip</button>
+  <h1 class="popup-title"><%= popup.title %></h1>
+
+  <% popup.steps.forEach((step, i) => { %>
+    <li class="popup-step" data-step="<%= i %>" style="display:none"><%= step %></li>
+  <% }) %>
+    
+  <p class="popup-step-text"></p>
+  </br>
+  <button class="popup-next">Next</button>
+  <button class="popup-skip" id="<%= featureName %>">Skip Tutorial</button>
 </div>
 
 <script src="/js/popup.js"></script>
