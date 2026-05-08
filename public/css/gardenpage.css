@@ -1,6 +1,15 @@
 #welcome-text {
   font-size: 4vh;
-  margin-top: 5vh;
+  margin-top: -2vh;
+}
+
+#background {
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
 }
 
 p {
@@ -19,14 +28,12 @@ h3 {
 
 .scroll-pane {
   width: 100%;
-  height: 80vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2vh;
   padding: 3vw;
   box-sizing: border-box;
-
 }
 
 /* cards */
@@ -40,7 +47,7 @@ h3 {
 }
 
 .crop-card.expanded {
-  height: 75vh;
+  height: auto;
 }
 
 .crop-img {
@@ -106,8 +113,9 @@ h3 {
 .searchbar {
   justify-content: center;
   display: grid;
-  grid-template-columns: 60% 20%;
-
+  grid-template-columns: 70% 10%;
+  padding-bottom: 2vh;
+  padding-top: 1vh;
 }
 
 #crop-search {
@@ -115,6 +123,13 @@ h3 {
   height: 5vh;
   border-radius: 30px;
   padding-left: 5vw;
+  padding-right: 5vw;
+}
+
+#crop-search-icon {
+  height: 3vh;
+  padding-left: 1vw;
+  padding-top: 1vh;
 }
 
 #crop-search-button {
