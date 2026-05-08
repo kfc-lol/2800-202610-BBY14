@@ -1,18 +1,18 @@
 <%- include('partials/header', {title: 'GroCrop', cssFiles: ['map.css'], topNavBar: false, useMap: true}) %>
-
+  <div class="map-container">
     <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
 
-  <div class="content">
+    <div class="content">
 
-    <div class="map-toggle">
-      <button id="btn-regular" class="active" onclick="switchView('regular')">Map</button>
-      <button id="btn-climate" onclick="switchView('climate')">Microclimates</button>
+      <div class="map-toggle">
+        <button id="btn-regular" class="active" onclick="switchView('regular')">Map</button>
+        <button id="btn-climate" onclick="switchView('climate')">Microclimates</button>
+      </div>
+
+      <div id="map"></div>
+
     </div>
-
-    <div id="map"></div>
-
   </div>
-
     <!-- MapLibre loading before map.js -->
     <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
