@@ -1,4 +1,5 @@
 <%- include('partials/header', {title: 'GroCrop',cssFiles: ['gardenpage.css'], topNavBar: true}) %>
+      <!-- <img id="background" src="/img/bg1.png">   -->   
       <div class="content">
         <p id="welcome-text">Hello, <%= name %>.</p>
       </div>
@@ -6,7 +7,7 @@
       <!-- Scroll Pane -->
       <div class="searchbar">
         <input type="text" id="crop-search" name="q" placeholder="Search for a crop..." oninput="filterCrops(this.value)">
-        <button id="crop-search-button" type="submit">Search</button>
+        <img src="/img/searchicon.png" id="crop-search-icon" alt="search_icon">
       </div>
 
       <div class="scroll-pane">
