@@ -9,7 +9,7 @@ function startEdit() {
     document.getElementById(inp).style.display = "block";
   });
   document.getElementById("edit-btn").style.display = "none";
-  document.getElementById("save-btn").style.display = "inline-block";
+  document.getElementById("save-buttn").style.display = "inline-block";
   document.getElementById("cancel-btn").style.display = "inline-block";
   document.getElementById("inp-username").focus();
 }
@@ -20,7 +20,7 @@ function cancelEdit() {
     document.getElementById(inp).style.display = "none";
   });
   document.getElementById("edit-btn").style.display = "inline-block";
-  document.getElementById("save-btn").style.display = "none";
+  document.getElementById("save-buttn").style.display = "none";
   document.getElementById("cancel-btn").style.display = "none";
 }
 

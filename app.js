@@ -172,7 +172,7 @@ app.post("/loginSubmit", async (req, res) => {
 // Garden Page
 app.get("/gardenpage", async (req, res) => {
   if (!req.session.authenticated) {
-    return res.redirect("/login");
+    return res.redirect("/loginpage");
   }
 
   const crops = await cropsCollection.find({}).toArray();
