@@ -40,13 +40,13 @@ html, body {
 .map-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 72px); /* 60px = bottom navbar height */
   width: 100%;
-  padding-bottom: 60px;
   box-sizing: border-box;
 }
 
 .content {
+  margin: 0;
   display: flex;
   flex-direction: column;
   flex: 1;
