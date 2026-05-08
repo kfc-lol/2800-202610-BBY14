@@ -25,6 +25,10 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 const { database } = include("public/js/databaseConnection");
 const userCollection = database.db(mongodb_database).collection("users");
 const cropsCollection = database.db(mongodb_database).collection("crops");
+const tutorialsCollection = database
+  .db(mongodb_database)
+  .collection("tutorials");
+
 /*
  - for creating a user 
 await userCollection.insertOne({
@@ -87,64 +91,77 @@ app.get("/", (req, res) => {
 
 // Signup Page
 app.get("/signuppage", (req, res) => {
+  if (req.session.authenticated) return res.redirect("/gardenpage");
   res.render("signuppage");
 });
- 
+
 app.post("/signupSubmit", async (req, res) => {
+  if (req.session.authenticated) return res.redirect("/gardenpage");
   const { username, email, password } = req.body;
- 
+
   const schema = Joi.object({
     username: usernameSchema,
     email: emailSchema,
     password: passwordSchema,
   });
   const validationResult = schema.validate({ username, email, password });
- 
+
   if (validationResult.error) {
     return res.render("signuppage", {
       message: validationResult.error.details[0].message,
     });
   }
- 
+
   const existingUser = await userCollection.findOne({ email });
   if (existingUser) {
     return res.render("signuppage", {
-      message: "An account with this Email already exists."
+      message: "An account with this Email already exists.",
     });
   }
- 
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  await userCollection.insertOne({ username, email, password: hashedPassword, savedCrops: [] });
 
-  const result = await userCollection.insertOne({ username, email, password: hashedPassword });
- 
+  const featureChecklist = {
+    f_savecrop: false,
+    f_map: false,
+    f_croptutorial: false,
+  };
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const result = await userCollection.insertOne({
+    username,
+    email,
+    password: hashedPassword,
+    savedCrops: [],
+    featureChecklist,
+  });
+
   req.session.authenticated = true;
   req.session.name = username;
-  req.session.userId = result.insertedId.toString(); 
+  req.session.userId = result.insertedId.toString();
   res.redirect("/locationsubmitpage");
 });
 
 // Login Page
 app.get("/loginpage", (req, res) => {
+  if (req.session.authenticated) return res.redirect("/gardenpage");
   res.render("loginpage");
 });
- 
+
 app.post("/loginSubmit", async (req, res) => {
+  if (req.session.authenticated) return res.redirect("/gardenpage");
   const { email, password } = req.body;
- 
+
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
   });
- 
+
   const validationResult = schema.validate({ email, password });
- 
+
   if (validationResult.error) {
     const errorMessage = validationResult.error.details[0].message;
     res.render("loginpage", { errorMessage });
     return;
   }
- 
+
   const user = await userCollection.findOne({ email });
   if (!user) {
     res.render("loginpage", {
@@ -152,7 +169,7 @@ app.post("/loginSubmit", async (req, res) => {
     });
     return;
   }
- 
+
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     res.render("loginpage", {
@@ -160,7 +177,7 @@ app.post("/loginSubmit", async (req, res) => {
     });
     return;
   }
- 
+
   req.session.authenticated = true;
   req.session.name = user.username;
   req.session.userId = user._id.toString(); // store _id
@@ -177,62 +194,99 @@ app.get("/gardenpage", async (req, res) => {
 
   const crops = await cropsCollection.find({}).toArray();
   const user = await userCollection.findOne({ username: req.session.name });
-  const savedCrops = user.savedCrops ?? [];
+  const savedCrops = user.savedCrops || [];
+  const featureChecklist = user.featureChecklist;
+  const popup = await tutorialsCollection.findOne({ page: "f_croptutorial" });
 
-  res.render("gardenpage", { crops, savedCrops, name: req.session.name });
+  res.render("gardenpage", {
+    crops,
+    savedCrops,
+    name: req.session.name,
+    featureChecklist,
+    popup,
+  });
 });
 
 app.post("/saveCrop", async (req, res) => {
-  if (!req.session.authenticated) return res.redirect('/login');
+  if (!req.session.authenticated) return res.redirect("/gardenpage");
 
   const { cropId, action } = req.body;
 
   if (action === "save") {
     await userCollection.updateOne(
       { username: req.session.name },
-      { $addToSet: { savedCrops: cropId } }
+      { $addToSet: { savedCrops: cropId } },
     );
   } else if (action === "unsave") {
     await userCollection.updateOne(
       { username: req.session.name },
-      { $pull: { savedCrops: cropId } }
+      { $pull: { savedCrops: cropId } },
     );
   }
+
+  res.json({ success: true });
+});
+
+app.post("/api/user/skip-feature", async (req, res) => {
+  if (!req.session.authenticated) return res.redirect("/gardenpage");
+
+  const { feature } = req.body;
+
+  await userCollection.updateOne(
+    { _id: new ObjectId(req.session.userId) },
+    { $set: { [`featureChecklist.${feature}`]: true } },
+  );
 
   res.json({ success: true });
 });
 //--//
 
 app.get("/savedpage", async (req, res) => {
-  if (!req.session.authenticated) {
-    return res.redirect("/login");
-  }
+  if (!req.session.authenticated) return res.redirect("/login");
 
-  res.render("savedpage");
+  const user = await userCollection.findOne({ username: req.session.name });
+  if (!user) return res.redirect("/login");
+
+  const savedCrops = user.savedCrops ?? [];
+
+  const savedCropData =
+    savedCrops.length > 0
+      ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
+      : [];
+
+  const featureChecklist = user.featureChecklist;
+  const popup = await tutorialsCollection.findOne({ page: "f_savedtutorial" });
+
+  res.render("savedpage", {
+    user,
+    savedCrops,
+    savedCropData,
+    featureChecklist,
+    popup,
+  });
 });
-
 
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
- 
+
   const user = await userCollection.findOne(
     { _id: new ObjectId(req.session.userId) },
     { projection: { password: 0 } },
   );
- 
+
   res.render("profilepage", { user });
 });
- 
+
 app.post("/updateProfile", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
- 
+
   const { username, email } = req.body;
- 
+
   const schema = Joi.object({ username: usernameSchema, email: emailSchema });
   const validationResult = schema.validate({ username, email });
- 
+
   if (validationResult.error) {
     const user = await userCollection.findOne(
       { _id: new ObjectId(req.session.userId) },
@@ -243,7 +297,7 @@ app.post("/updateProfile", async (req, res) => {
       errorMessage: validationResult.error.details[0].message,
     });
   }
- 
+
   const existingUser = await userCollection.findOne({ email });
   if (existingUser && existingUser._id.toString() !== req.session.userId) {
     const user = await userCollection.findOne(
@@ -252,19 +306,19 @@ app.post("/updateProfile", async (req, res) => {
     );
     return res.render("profilepage", {
       user,
-      errorMessage: "An account with this email already exists."
+      errorMessage: "An account with this email already exists.",
     });
   }
- 
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
     { $set: { username, email } },
   );
- 
+
   req.session.name = username;
   res.redirect("/profile");
 });
- 
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
@@ -274,53 +328,69 @@ app.get("/logout", (req, res) => {
 app.get("/zonepage", async (req, res) => {
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
-  res.render('zonepage', { zones });
+  res.render("zonepage", { zones });
 });
 
 // Location Submit Page
 app.get("/locationsubmitpage", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
- 
+
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
- 
-  const cities = zones.flatMap(z =>
-    z.areas.split(",").map(a => ({
-      name: a.trim(),
-      zoneId: z._id,
-      zoneName: z.zone
-    }))
-  ).sort((a, b) => a.name.localeCompare(b.name));
- 
+
+  const cities = zones
+    .flatMap((z) =>
+      z.areas.split(",").map((a) => ({
+        name: a.trim(),
+        zoneId: z._id,
+        zoneName: z.zone,
+      })),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   res.render("locationsubmitpage", { cities });
 });
- 
+
 app.post("/locationSubmit", async (req, res) => {
   const { city } = req.body;
- 
+
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
- 
-  const matchedZone = zones.find(z =>
-    z.areas.split(",").map(a => a.trim().toLowerCase()).includes(city)
+
+  const matchedZone = zones.find((z) =>
+    z.areas
+      .split(",")
+      .map((a) => a.trim().toLowerCase())
+      .includes(city),
   );
- 
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
-    { $set: {
+    {
+      $set: {
         city: city,
-        zone: matchedZone ? matchedZone.zone : null
-    }}
+        zone: matchedZone ? matchedZone.zone : null,
+      },
+    },
   );
- 
+
   res.redirect("/gardenpage");
 });
 // Map Page
-app.get("/map", (req, res) => {
+app.get("/map", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
-  res.render("map");
+
+  const user = await userCollection.findOne({ username: req.session.name });
+  const featureChecklist = user.featureChecklist;
+  const popup = await tutorialsCollection.findOne({ page: "f_map" });
+
+  res.render("map", {
+    MAPTILER_KEY: process.env.MAPTILER_KEY,
+    featureChecklist,
+    popup,
+  });
 });
 
 //---------//
