@@ -1,0 +1,115 @@
+.scroll-pane {
+  width: 100%;
+  overflow-y: auto;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  padding: 3vw;
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+}
+
+.crop-img {
+  display: inline;
+  justify-self: center;
+  padding-top: 1vh;
+  padding-left: 1vw;
+  height: 8vh;
+  width: 8vh;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.crop-name {
+  display: inline;
+  padding-left: 6vw;
+  padding-top: 3.4vh;
+  color: #7C745B;
+}
+
+.crop-zone {
+  padding-top: 3vh;
+  padding-bottom: 3vh;
+  padding-left: 3vh;
+}
+
+.crop-title {
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+  padding-left: 3vh;
+  font-weight: bold;
+}
+
+.crop-info {
+  padding-top: 0;
+  padding-bottom: 5vh;
+  padding-left: 3vh;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 20% 50% 15% 15%;
+  height: 10vh;
+}
+
+.save-button {
+  padding-top: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+}
+
+.unsave-button {
+  padding-top: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+}
+
+.dropdown-button {
+  height: 3vh;
+  justify-self: center;
+  align-self: center;
+  transition: transform 0.25s ease-out;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  user-select: none;
+}
+
+.crop-card.expanded .dropdown-button {
+  transform: rotate(180deg);
+}
+
+.searchbar {
+  justify-content: center;
+  display: grid;
+  grid-template-columns: 70% 10%;
+  padding-bottom: 2vh;
+  padding-top: 1vh;
+}
+
+#crop-search {
+  width: 70vw;
+  height: 5vh;
+  border-radius: 30px;
+  padding-left: 5vw;
+  padding-right: 5vw;
+}
+
+#crop-search-icon {
+  height: 3vh;
+  padding-left: 1vw;
+  padding-top: 1vh;
+}
+
+#crop-search-button {
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+#crop-search-button:hover {
+  background-color: #c5c5c5;
+}
+

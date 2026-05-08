@@ -204,13 +204,19 @@ app.post("/saveCrop", async (req, res) => {
 //--//
 
 app.get("/savedpage", async (req, res) => {
-  if (!req.session.authenticated) {
-    return res.redirect("/login");
-  }
+  if (!req.session.authenticated) return res.redirect("/login");
 
-  res.render("savedpage");
+  const user = await userCollection.findOne({ username: req.session.name });
+  if (!user) return res.redirect("/login");
+
+  const savedCrops = user.savedCrops ?? [];
+
+  const savedCropData = savedCrops.length > 0
+    ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
+    : [];
+
+  res.render("savedpage", { user, savedCrops, savedCropData });
 });
-
 
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) {
