@@ -92,22 +92,33 @@ h3 {
   height: 10vh;
 }
 
-.unsaved-bookmark-icon {
+.save-button {
   padding-top: 3.3vh;
   height: 3.5vh;
   justify-self: right;
+  z-index: 3;
 }
 
-.dropdown-icon {
+.unsave-button {
+  padding-top: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+}
+
+.dropdown-button {
   height: 3vh;
   justify-self: center;
   align-self: center;
   transition: transform 0.25s ease-out;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  user-select: none;
 }
 
-.crop-card.expanded .dropdown-icon {
+.crop-card.expanded .dropdown-button {
   transform: rotate(180deg);
-  align-self: center;
 }
 
 .searchbar {
@@ -140,3 +151,4 @@ h3 {
 #crop-search-button:hover {
   background-color: #c5c5c5;
 }
+

@@ -17,8 +17,16 @@
             <div class="card-grid" >
               <img src="/img/placeholder.png" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
               <h1 class="crop-name"><%= crop.name %></h1>
-              <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsaved-bookmark-icon">
-              <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-icon">
+
+              
+              <% if (savedCrops.includes(crop.id)) { %>
+                <img src="/img/savedbookmark.png" alt="bookmark-icon" class="save-button" id="<%= crop.id %>">
+              <% } else { %>
+                <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsave-button" id="<%= crop.id %>">
+              <% } %>
+              
+
+              <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-button">
             </div>
 
             <p class="crop-zone">Zones: <%= crop.zones %></p>
@@ -32,4 +40,4 @@
         <% } %>
       </div>
 
-<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js'], botNavBar: true }) %>
+<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'saveCrop.js'], botNavBar: true }) %>
