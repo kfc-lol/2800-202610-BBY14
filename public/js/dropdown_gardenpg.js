@@ -1,7 +1,8 @@
-document.querySelectorAll('.crop-card').forEach(card => {
-  card.addEventListener('click', () => {
+document.querySelectorAll('.dropdown-button').forEach(button => {
+  button.addEventListener('click', () => {
 
+    const card = button.closest('.crop-card');
     card.classList.toggle('expanded');
-    const dropdownIcon = card.querySelector('.dropdown-icon');
+    const dropdownIcon = card.querySelector('.dropdown-button');
   });
 });

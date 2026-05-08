@@ -114,6 +114,8 @@ app.post("/signupSubmit", async (req, res) => {
   }
  
   const hashedPassword = await bcrypt.hash(password, saltRounds);
+  await userCollection.insertOne({ username, email, password: hashedPassword, savedCrops: [] });
+
   const result = await userCollection.insertOne({ username, email, password: hashedPassword });
  
   req.session.authenticated = true;
@@ -174,11 +176,31 @@ app.get("/gardenpage", async (req, res) => {
   }
 
   const crops = await cropsCollection.find({}).toArray();
+  const user = await userCollection.findOne({ username: req.session.name });
+  const savedCrops = user.savedCrops ?? [];
 
-  res.render("gardenpage", { crops, name: req.session.name });
+  res.render("gardenpage", { crops, savedCrops, name: req.session.name });
 });
 
+app.post("/saveCrop", async (req, res) => {
+  if (!req.session.authenticated) return res.status(401).json({ error: "Unauthorized" });
 
+  const { cropId, action } = req.body;
+
+  if (action === "save") {
+    await userCollection.updateOne(
+      { username: req.session.name },
+      { $addToSet: { savedCrops: cropId } }
+    );
+  } else if (action === "unsave") {
+    await userCollection.updateOne(
+      { username: req.session.name },
+      { $pull: { savedCrops: cropId } }
+    );
+  }
+
+  res.json({ success: true });
+});
 
 //--//
 
