@@ -34,8 +34,8 @@ p {
 #get-started-button {
   display: inline-block;
   text-decoration: none;
-  background-color: #848484;
-  color: #ffffff;
+  background-color: #FFFEF1;
+  color: #000000;
 
   padding: 1.5vh 12vw;
   border-radius: 5vh;

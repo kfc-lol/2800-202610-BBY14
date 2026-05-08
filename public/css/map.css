@@ -1,0 +1,28 @@
+#map {
+  width: 100%;
+  height: calc(100vh - 110px); /* adjusts for toggle bar + bottom nav */
+}
+
+.map-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.map-toggle button {
+  padding: 8px 20px;
+  border: 1.5px solid #2E7D32;
+  border-radius: 99px;
+  background: white;
+  color: #2E7D32;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.map-toggle button.active {
+  background: #2E7D32;
+  color: white;
+}
