@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  overflow-y: hidden;
+  background-color: #DAEDBA;
+  font-family:'Lexend';
+}
+
+.app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topnavbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background-color: #DAEDBA;
+}
+
+.profile-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 100%;
+  border-radius: 0;
+  border-width: 0;
+  background: none;
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.bottom-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 12px 0;
+  background-color: #FFFEF1;
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.nav-btn {
+  font-size: 14px;
+  text-align: center;
+  border: none;
+  background-color: #FFFEF1
+}
+
+.nav-btn img {
+  width: 45px;
+  height: 45px;
+}
+
+#welcome-text {
+  font-size: 4vh;
+  margin-top: -2vh;
+}
+
+#save-btn {
+  width: 35px;
+  height: 35px;
+}
+
+#profile_pic {
+  width: 45px;
+  height: 45px;
+}
+
+/* cards */
+.crop-card {
+  border-radius: 28px;
+  background-color: #FFFEF1;
+  max-height: 10vh;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: max-height 0.2s ease-out;
+}
+
+.crop-card.expanded {
+  max-height: 2000px;
+  transition: max-height 0.2s ease-in;
+}
+
+.crop-img {
+  display: inline;
+  justify-self: center;
+  padding-top: 1vh;
+  padding-left: 1vw;
+  height: 8vh;
+  width: 8vh;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.crop-name {
+  display: inline;
+  padding-left: 6vw;
+  padding-top: 3.4vh;
+  color: #7C745B;
+}
+
+.crop-zone {
+  padding-top: 3vh;
+  padding-bottom: 3vh;
+  padding-left: 1vh;
+}
+
+.crop-title {
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+  padding-left: 3vh;
+  font-weight: bold;
+}
+
+.crop-info {
+  padding-top: 0;
+  padding-bottom: 5vh;
+  padding-left: 3vh;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 20% 50% 15% 15%;
+  height: 10vh;
+}
+
+.save-button {
+  padding-top: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+}
+
+.unsave-button {
+  padding-top: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+}
+
+.dropdown-button {
+  height: 3vh;
+  justify-self: center;
+  align-self: center;
+  transition: transform 0.25s ease-out;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  user-select: none;
+}
+
+.crop-card.expanded .dropdown-button {
+  transform: rotate(180deg);
+}
+
+.searchbar {
+  justify-content: center;
+  display: grid;
+  grid-template-columns: 70% 10%;
+  padding-bottom: 2vh;
+  padding-top: 1vh;
+}
+
+#crop-search {
+  width: 70vw;
+  height: 5vh;
+  border-radius: 30px;
+  padding-left: 5vw;
+  padding-right: 5vw;
+}
+
+#crop-search-icon {
+  height: 3vh;
+  padding-left: 1vw;
+  padding-top: 1vh;
+}
+
+#crop-search-button {
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+#crop-search-button:hover {
+  background-color: #c5c5c5;
+}

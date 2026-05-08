@@ -1,0 +1,66 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.content {
+  justify-items: center;
+  text-align: center;
+}
+
+p {
+  color: #4d4141;
+  font-size: 1.8vh;
+  width: 90%;
+  text-align: center;
+  padding-top: 1vh;
+  
+}
+
+#welcome-text-lp {
+  color: #ffffff;
+  font-size: 4vh;
+  font-weight: bold;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 10vh;
+  text-shadow: 0px 3px 0.5px #4d4141;
+}
+
+
+
+#get-started-button {
+  display: inline-block;
+  text-decoration: none;
+  background-color: #FFFEF1;
+  color: #4d4141;
+  padding: 1.5vh 12vw;
+  border-radius: 5vh;
+  font-weight: bold;
+  border: 2px solid #4d4141;
+  cursor: pointer;
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0px 3px 0px #4d4141;
+  white-space: nowrap;
+}
+
+#get-started-button:hover {
+  transform: translateX(-50%) translateY(-4px);
+  box-shadow: 0px 6px 0px #4d4141;
+}
+
+#get-started-button:active {
+  transform: translateX(-50%) translateY(4px);
+  box-shadow: 0px 0px 0px #4d4141;
+}

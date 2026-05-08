@@ -1,0 +1,51 @@
+<%- include('partials/header', {title: 'GroCrop', cssFiles: ['profilepage.css'], topNavBar: false}) %>
+  <div class="content">
+    <h1>Your Profile</h1>
+
+  </br>
+    <% if (typeof message !== 'undefined') { %>
+      <p id="message" style="color: green;"><%= message %></p>
+    <% } %>
+    <% if (typeof errorMessage !== 'undefined') { %>
+      <p id="message" style="color: red;"><%= errorMessage %></p>
+    <% } %>
+
+    <div class="field">
+      <label for="inp-username">Username</label>
+      <div class="value" id="val-username"><%= user.username %></div>
+      <input type="text" id="inp-username" name="username" value="<%= user.username %>" autocomplete="username"/>
+    </div>
+
+    <div class="field">
+      <label for="inp-email">Email</label>
+      <div class="value" id="val-email"><%= user.email %></div>
+      <input type="email" id="inp-email" name="email" value="<%= user.email %>" autocomplete="email"/>
+    </div>
+
+    <button id="edit-btn" onclick="startEdit()">Edit profile</button>
+    <button id="save-buttn" onclick="submitProfile()">Save changes</button>
+    <button id="cancel-btn" onclick="cancelEdit()">Cancel</button>
+
+    <form id="profile-form" action="/updateProfile" method="POST" style="display:none">
+      <input type="hidden" id="form-username" name="username" />
+      <input type="hidden" id="form-email" name="email" />
+    </form>
+
+    </br>
+    </br>
+    
+    <button id="logout-btn" onclick="showLogoutPrompt()" autocomplete="off">Log out</button>
+
+    <div id="logout-prompt">
+        <div class="prompt-box">
+            <h2>Log out?</h2>
+            <p>You'll need to log back in to access your account.</p>
+            <div class="prompt-actions">
+                <button class="prompt-cancel" onclick="hideLogoutPrompt()">Cancel</button>
+                <button class="prompt-confirm" onclick="confirmLogout()">Log out</button>
+            </div>
+        </div>
+    </div>
+
+  </div>
+<%- include('partials/footer', { jsFiles: ['profile.js'], botNavBar: true }) %>

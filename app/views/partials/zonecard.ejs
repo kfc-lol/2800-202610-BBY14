@@ -1,0 +1,18 @@
+<!--Individual zone cards-->
+<div class="zoneInfoDropdown" onClick="toggleCard(this)">
+    <div class="header"><b><%= zone.zone %></b></div>
+
+    <div class="cardContent">
+        <div> <!-- wrapper div -->
+            <br>
+            <p><%= zone.areas %></p>
+            <br>
+
+            <% zone.characteristics.forEach(cat => { %>
+                <p><b><%= cat.title %></b></p>
+                <p style="padding-left: 1.5em;"><%= cat.content %></p>
+                <br>
+            <% }) %>
+        </div>
+    </div>
+</div>
