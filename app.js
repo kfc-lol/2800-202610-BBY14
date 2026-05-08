@@ -100,7 +100,7 @@ app.post("/signupSubmit", async (req, res) => {
 
   req.session.authenticated = true;
   req.session.name = username;
-  res.redirect("/locationrequestpage");
+  res.redirect("/locationsubmitpage");
 });
 
 // Login Page
@@ -140,15 +140,7 @@ app.post("/loginSubmit", async (req, res) => {
     req.session.name = user.username;
     res.redirect("/gardenpage");
 });
-// Location Request Page
-app.post("/locationSubmit", async (req, res) => {
-  const { city } = req.body;
-  const normalizedCity = city.trim().toLowerCase();
 
-  const zone = getZoneFromCity
-
-  res.redirect("/gardenpage");
-});
 
 // Landing Page
 app.get("/gardenpage", (req, res) => {
@@ -210,6 +202,44 @@ app.get("/zonepage", async (req, res) => {
   res.render('zonepage', { zones });
 });
 
+// Location Submit Page
+app.get("/locationsubmitpage", async (req, res) => {
+  if (!req.session.authenticated) return res.redirect("/login");
+
+  const zoneCollection = database.db(mongodb_database).collection("zones");
+  const zones = await zoneCollection.find({}).toArray();
+
+  const cities = zones.flatMap(z =>
+    z.areas.split(",").map(a => ({
+      name: a.trim(),
+      zoneId: z._id,
+      zoneName: z.zone
+    }))
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
+  res.render("locationsubmitpage", { cities });
+});
+
+app.post("/locationSubmit", async (req, res) => {
+  const { city } = req.body;
+
+  const zoneCollection = database.db(mongodb_database).collection("zones");
+  const zones = await zoneCollection.find({}).toArray();
+
+  const matchedZone = zones.find(z =>
+    z.areas.split(",").map(a => a.trim().toLowerCase()).includes(city)
+  );
+
+  await userCollection.updateOne(
+    { username: req.session.name },
+    { $set: {
+        city: city,
+        zone: matchedZone ? matchedZone.zone : null
+    }}
+  );
+
+  res.redirect("/gardenpage");
+});
 //---------//
 
 // Error 404 Page
