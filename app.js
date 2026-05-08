@@ -38,7 +38,7 @@ await userCollection.insertOne({
 */
 
 // Extracted User Schema for usages in signup and editing.
-const usernameSchema = Joi.string().min(5).max(50).required();
+const usernameSchema = Joi.string().min(5).max(32).required();
 const emailSchema = Joi.string().email().required();
 const passwordSchema = Joi.string()
   .min(8)
