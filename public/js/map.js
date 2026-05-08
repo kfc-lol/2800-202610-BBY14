@@ -1,5 +1,5 @@
-const MAPTILER_KEY = "gS7ofDEf4nPilvq172k8"; 
-const OPEN_WEATHER_KEY = "34f7ef4d6bb319bf0e18c03de756b40a";
+const MAPTILER_KEY = process.env.MAPTILER_KEY;
+const OPEN_WEATHER_KEY = process.env.OPEN_WEATHER_KEY;
 
 const map = new maplibregl.Map({
   container: "map",
