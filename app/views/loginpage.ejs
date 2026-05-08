@@ -1,11 +1,30 @@
-<h1>Log In</h1>
-<form action="/loginSubmit" method="POST">
-    <input name="email" placeholder="email" /><br><br> 
-    <input name="password" type="password" placeholder="password" /><br><br>
-    <button type="submit">Login</button>
-    <% if (locals.errorMessage) { %>
-        <p><%= errorMessage %></p>
-    <% } %>
-</form>
-<p>If you do not have an account?</p>
-<a href ="signuppage" id ="Sign-Up-Button">Sign Up</a>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="/css/loginpage.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<div class="content">
+    <div class="login-bg">
+        <h1 class="login-text">Log In</h1>
+        <form action="/loginSubmit" method="POST">
+            <p>Email:</p>
+            <input name="email" placeholder="example@email.com" /><br>
+            <p>Password:</p>
+            <input name="password" type="password" placeholder="password" /><br>
+            <% if (locals.errorMessage) { %>
+                <p><%= errorMessage %></p>
+            <% } %>
+            
+            <div class="login-button-container">
+                <button id="login-button" type="submit">Login</button>
+            </div>
+
+            
+        </form>
+        <div class="logincheckcontainer">
+            <p class="accountchecktext">If you do not have an account?</p>
+            <a class="loginref" href="signuppage" id="Sign-Up-Button">Sign Up</a>
+        </div>
+    </div>
+</div>
