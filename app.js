@@ -366,6 +366,7 @@ app.post("/locationSubmit", async (req, res) => {
 
   res.redirect("/gardenpage");
 });
+
 // Map Page
 app.get("/map", async (req, res) => {
   if (!req.session.authenticated) {
