@@ -65,9 +65,3 @@ h1 {
   width: 35px;
   height: 35px;
 }
-
-.nav-btn.active {
-  background-color: #ECE3C7;
-  border-radius: 12px;
-  padding: 8px;
-}

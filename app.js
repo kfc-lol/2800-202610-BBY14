@@ -120,40 +120,40 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/loginSubmit", async (req, res) => {
-  const { email, password } = req.body;
+    const { email, password } = req.body;
 
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
-  });
+    });
 
-  const validationResult = schema.validate({ email, password });
+    const validationResult = schema.validate({ email, password });
 
-  if (validationResult.error) {
-    const errorMessage = validationResult.error.details[0].message;
-    res.render("login", { errorMessage });
-    return;
-  }
+    if (validationResult.error) {
+        const errorMessage = validationResult.error.details[0].message;
+        res.render("login", { errorMessage });
+        return;
+    }
 
-  const user = await userCollection.findOne({ email });
-  if (!user) {
+    const user = await userCollection.findOne({ email });
+    if (!user) {
     res.render("login", {
       errorMessage: "Invalid email/password combination.",
     });
-    return;
-  }
+        return;
+    }
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
     res.render("login", {
       errorMessage: "Invalid email/password combination.",
     });
-    return;
-  }
+        return;
+    }
 
-  req.session.authenticated = true;
-  req.session.name = user.username;
-  res.redirect("/gardenpage");
+    req.session.authenticated = true;
+    req.session.name = user.username;
+    res.redirect("/gardenpage");
 });
 
 //--//
@@ -163,7 +163,7 @@ app.get("/gardenpage", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/login");
   }
-  
+
   const crops = await cropsCollection.find({}).toArray();
 
   res.render("gardenpage", { crops, name: req.session.name });
