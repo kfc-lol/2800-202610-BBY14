@@ -25,6 +25,8 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 const { database } = include("public/js/databaseConnection");
 const userCollection = database.db(mongodb_database).collection("users");
 const cropsCollection = database.db(mongodb_database).collection("crops");
+const tutorialsCollection = database.db(mongodb_database).collection("tutorials");
+
 /*
  - for creating a user 
 await userCollection.insertOne({
@@ -182,8 +184,9 @@ app.get("/gardenpage", async (req, res) => {
   const user = await userCollection.findOne({ username: req.session.name });
   const savedCrops = user.savedCrops || [];
   const featureChecklist = user.featureChecklist;
+  const popup = await tutorialsCollection.findOne({ page: "f_croptutorial" });
 
-  res.render("gardenpage", { crops, savedCrops, name: req.session.name, featureChecklist });
+  res.render("gardenpage", { crops, savedCrops, name: req.session.name, featureChecklist, popup });
 });
 
 app.post("/saveCrop", async (req, res) => {
