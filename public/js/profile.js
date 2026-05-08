@@ -6,11 +6,11 @@ const fields = [
 function startEdit() {
   fields.forEach(({ val, inp }) => {
     document.getElementById(val).style.display = "none";
-    document.getElementById(inp).style.display = "block";
+    document.getElementById(inp).style.display = "flex";
   });
   document.getElementById("edit-btn").style.display = "none";
-  document.getElementById("save-buttn").style.display = "inline-block";
-  document.getElementById("cancel-btn").style.display = "inline-block";
+  document.getElementById("save-buttn").style.display = "inline-flex";
+  document.getElementById("cancel-btn").style.display = "inline-flex";
   document.getElementById("inp-username").focus();
 }
 
@@ -49,7 +49,7 @@ setTimeout(function () {
 
 function showLogoutPrompt() {
   const prompt = document.getElementById('logout-prompt');
-  prompt.style.display = 'flex';
+  prompt.style.display = 'inline-flex';
 }
 
 function hideLogoutPrompt() {

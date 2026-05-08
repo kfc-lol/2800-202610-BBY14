@@ -2,8 +2,9 @@
   <div class="content">
     <h1>Your Profile</h1>
 
-    <% if (typeof successMessage !== 'undefined') { %>
-      <p id="message" style="color: green;"><%= successMessage %></p>
+  </br>
+    <% if (typeof message !== 'undefined') { %>
+      <p id="message" style="color: green;"><%= message %></p>
     <% } %>
     <% if (typeof errorMessage !== 'undefined') { %>
       <p id="message" style="color: red;"><%= errorMessage %></p>
@@ -33,7 +34,7 @@
     </br>
     </br>
     
-    <button onclick="showLogoutPrompt()" autocomplete="off">Log out</button>
+    <button id="logout-btn" onclick="showLogoutPrompt()" autocomplete="off">Log out</button>
 
     <div id="logout-prompt">
         <div class="prompt-box">

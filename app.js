@@ -267,16 +267,17 @@ app.get("/savedpage", async (req, res) => {
 });
 
 app.get("/profile", async (req, res) => {
-  if (!req.session.authenticated) {
-    return res.redirect("/loginpage");
-  }
+  if (!req.session.authenticated) return res.redirect("/loginpage");
 
   const user = await userCollection.findOne(
     { _id: new ObjectId(req.session.userId) },
     { projection: { password: 0 } },
   );
 
-  res.render("profilepage", { user });
+  const flash = req.session.flash || {};
+  req.session.flash = null;
+
+  res.render("profilepage", { user, ...flash });
 });
 
 app.post("/updateProfile", async (req, res) => {
@@ -288,26 +289,14 @@ app.post("/updateProfile", async (req, res) => {
   const validationResult = schema.validate({ username, email });
 
   if (validationResult.error) {
-    const user = await userCollection.findOne(
-      { _id: new ObjectId(req.session.userId) },
-      { projection: { password: 0 } },
-    );
-    return res.render("profilepage", {
-      user,
-      errorMessage: validationResult.error.details[0].message,
-    });
+    req.session.flash = { errorMessage: validationResult.error.details[0].message };
+    return res.redirect("/profile");
   }
 
   const existingUser = await userCollection.findOne({ email });
   if (existingUser && existingUser._id.toString() !== req.session.userId) {
-    const user = await userCollection.findOne(
-      { _id: new ObjectId(req.session.userId) },
-      { projection: { password: 0 } },
-    );
-    return res.render("profilepage", {
-      user,
-      errorMessage: "An account with this email already exists.",
-    });
+    req.session.flash = { errorMessage: "An account with this email already exists." };
+    return res.redirect("/profile");
   }
 
   await userCollection.updateOne(
@@ -316,6 +305,7 @@ app.post("/updateProfile", async (req, res) => {
   );
 
   req.session.name = username;
+  req.session.flash = { message: "Changes were saved successfully" };
   res.redirect("/profile");
 });
 

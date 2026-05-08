@@ -1,20 +1,85 @@
 .field .value {
-  padding: 8px 0;
+  padding: 8px 10px;
+  background: #fff;
+  width: 50%;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-style: italic;
+  color: #666;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow-x: scroll;
 }
 .field input {
   display: none;
-  width: 100%;
+  width: 50%;
   box-sizing: border-box;
   font-size: 15px;
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
+label {
+  font-weight:bold;
+}
+
 #cancel-btn {
   display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s ease;
 }
+
+#edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s ease;
+}
+
 #save-buttn {
   display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s ease;
+}
+
+#logout-btn {
+  display: inline-flex;
+  background: #d1d1d1;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s ease;
 }
 
 #logout-prompt {
