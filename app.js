@@ -172,7 +172,7 @@ app.get("/gardenpage", async (req, res) => {
 });
 
 app.post("/saveCrop", async (req, res) => {
-  if (!req.session.authenticated) return res.status(401).json({ error: "Unauthorized" });
+  if (!req.session.authenticated) return res.redirect('/login');
 
   const { cropId, action } = req.body;
 
@@ -190,8 +190,16 @@ app.post("/saveCrop", async (req, res) => {
 
   res.json({ success: true });
 });
-
 //--//
+
+app.get("/savedpage", async (req, res) => {
+  if (!req.session.authenticated) {
+    return res.redirect("/login");
+  }
+
+  res.render("savedpage");
+});
+
 
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) {
