@@ -194,6 +194,14 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+// Map Page
+app.get("/map", (req, res) => {
+  if (!req.session.authenticated) {
+    return res.redirect("/login");
+  }
+  res.render("map");
+});
+
 //---------//
 
 // Error 404 Page
