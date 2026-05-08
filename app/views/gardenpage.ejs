@@ -25,7 +25,6 @@
                 <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsave-button" id="<%= crop.id %>">
               <% } %>
               
-
               <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-button">
             </div>
 
@@ -40,4 +39,7 @@
         <% } %>
       </div>
 
+      <% if (!featureChecklist.f_croptutorial) { %>
+        <%- include('partials/popup.ejs', { featureName: 'f_croptutorial' }) %>
+      <% } %>
 <%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'saveCrop.js'], botNavBar: true }) %>

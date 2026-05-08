@@ -13,7 +13,13 @@
 
     </div>
   </div>
+
+    <% if (!featureChecklist.f_map) { %>
+      <%- include('partials/popup.ejs', { featureName: 'f_map' }) %>
+    <% } %>
+
     <!-- MapLibre loading before map.js -->
     <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 
+    
 <%- include('partials/footer', { jsFiles: ['map.js'], botNavBar: true, useMap: true }) %>
