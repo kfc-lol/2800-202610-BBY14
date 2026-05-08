@@ -326,7 +326,9 @@ app.get("/map", (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
-  res.render("map");
+  res.render("map", {
+     MAPTILER_KEY: process.env.MAPTILER_KEY
+  });
 });
 
 //---------//
