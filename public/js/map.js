@@ -1,5 +1,4 @@
 const MAPTILER_KEY = process.env.MAPTILER_KEY;
-const OPEN_WEATHER_KEY = process.env.OPEN_WEATHER_KEY;
 
 const map = new maplibregl.Map({
   container: "map",
@@ -10,60 +9,74 @@ const map = new maplibregl.Map({
 
 map.addControl(new maplibregl.NavigationControl());
 
-// Toggling the views
+// Tracks which view the user is currently on
 let currentView = "regular";
 
 function switchView(view) {
   currentView = view;
+
+  // Toggles the "active" CSS class on whichever button was clicked
   document.getElementById("btn-regular").classList.toggle("active", view === "regular");
-  document.getElementById("btn-climate").classList.toggle("active", view === "climate");
+  document.getElementById("btn-zones").classList.toggle("active", view === "zones");
 
   if (view === "regular") {
     showRegularView();
   } else {
-    showClimateView();
+    showZonesView();
   }
 }
 
-// Regular view
+// Regular map view
 function showRegularView() {
-  if (map.getLayer("climate-layer")) {
-    map.setLayoutProperty("climate-layer", "visibility", "none");
+  if (map.getLayer("zones-fill")) {
+    map.setLayoutProperty("zones-fill", "visibility", "none");
+  }
+  if (map.getLayer("zones-outline")) {
+    map.setLayoutProperty("zones-outline", "visibility", "none");
   }
 }
 
-// Microclimate view
-function showClimateView() {
+// Zones view
+function showZonesView() {
+
   map.once("idle", () => {
 
-    if (!map.getSource("climate-overlay")) {
+    if (!map.getSource("climate-zones")) {
 
-      map.addSource("climate-overlay", {
-        type: "raster",
-        tiles: [
-   
-          `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${OPEN_WEATHER_KEY}`
-        ],
-        tileSize: 256,
+      map.addSource("climate-zones", {
+        type: "geojson",
+        data: "/data/zones.geojson", 
       });
 
       map.addLayer({
-        id: "climate-layer",
-        type: "raster",
-        source: "climate-overlay",
+        id: "zones-fill",
+        type: "fill",
+        source: "climate-zones",
         paint: {
-          "raster-opacity": 0.6,
+          "fill-color": ["get", "color"],
+          "fill-opacity": 0.4,
+        },
+      });
+
+      map.addLayer({
+        id: "zones-outline",
+        type: "line",
+        source: "climate-zones",
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 2,
         },
       });
 
     } else {
-      map.setLayoutProperty("climate-layer", "visibility", "visible");
+      map.setLayoutProperty("zones-fill", "visibility", "visible");
+      map.setLayoutProperty("zones-outline", "visibility", "visible");
     }
 
   });
 }
 
-// Start it
+// When the map first loads, show the regular map view
 map.on("load", () => {
   showRegularView();
 });
