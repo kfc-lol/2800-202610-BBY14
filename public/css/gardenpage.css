@@ -29,25 +29,28 @@ h3 {
 .scroll-pane {
   width: 100%;
   overflow-y: auto;
+  height: 70vh;
   display: flex;
   flex-direction: column;
   gap: 2vh;
   padding: 3vw;
   box-sizing: border-box;
+  scrollbar-gutter: stable;
 }
 
 /* cards */
 .crop-card {
   border-radius: 28px;
   background-color: #FFFEF1;
-  height: 10vh;
+  max-height: 10vh;
   overflow: hidden;
   flex-shrink: 0;
-  transition: height 0.25s ease-out;
+  transition: max-height 0.2s ease-out;
 }
 
 .crop-card.expanded {
-  height: auto;
+  max-height: 2000px;
+  transition: max-height 0.2s ease-in;
 }
 
 .crop-img {
@@ -77,13 +80,13 @@ h3 {
 .crop-title {
   padding-top: 1vh;
   padding-bottom: 1vh;
-  padding-left: 1vh;
+  padding-left: 3vh;
   font-weight: bold;
 }
 
 .crop-info {
   padding-top: 0;
-  padding-bottom: 3vh;
+  padding-bottom: 5vh;
   padding-left: 3vh;
 }
 
