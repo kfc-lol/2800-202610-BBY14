@@ -285,6 +285,14 @@ app.post("/locationSubmit", async (req, res) => {
  
   res.redirect("/gardenpage");
 });
+// Map Page
+app.get("/map", (req, res) => {
+  if (!req.session.authenticated) {
+    return res.redirect("/login");
+  }
+  res.render("map");
+});
+
 //---------//
 
 // Error 404 Page
