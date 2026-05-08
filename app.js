@@ -288,7 +288,7 @@ app.post("/locationSubmit", async (req, res) => {
 // Map Page
 app.get("/map", (req, res) => {
   if (!req.session.authenticated) {
-    return res.redirect("/login");
+    return res.redirect("/loginpage");
   }
   res.render("map");
 });
