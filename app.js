@@ -87,10 +87,12 @@ app.get("/", (req, res) => {
 
 // Signup Page
 app.get("/signuppage", (req, res) => {
+  if (req.session.authenticated) return res.redirect('/gardenpage');
   res.render("signuppage");
 });
  
 app.post("/signupSubmit", async (req, res) => {
+  if (req.session.authenticated) return res.redirect('/gardenpage');
   const { username, email, password } = req.body;
  
   const schema = Joi.object({
@@ -112,11 +114,10 @@ app.post("/signupSubmit", async (req, res) => {
       message: "An account with this Email already exists."
     });
   }
- 
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  await userCollection.insertOne({ username, email, password: hashedPassword, savedCrops: [] });
 
-  const result = await userCollection.insertOne({ username, email, password: hashedPassword });
+  const featureChecklist = { f_savecrop: false, f_map: false, f_croptutorial: false };
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const result = await userCollection.insertOne({ username, email, password: hashedPassword, savedCrops: [], featureChecklist });
  
   req.session.authenticated = true;
   req.session.name = username;
@@ -126,10 +127,12 @@ app.post("/signupSubmit", async (req, res) => {
 
 // Login Page
 app.get("/loginpage", (req, res) => {
+  if (req.session.authenticated) return res.redirect('/gardenpage');
   res.render("loginpage");
 });
  
 app.post("/loginSubmit", async (req, res) => {
+  if (req.session.authenticated) return res.redirect('/gardenpage');
   const { email, password } = req.body;
  
   const schema = Joi.object({
@@ -177,13 +180,14 @@ app.get("/gardenpage", async (req, res) => {
 
   const crops = await cropsCollection.find({}).toArray();
   const user = await userCollection.findOne({ username: req.session.name });
-  const savedCrops = user.savedCrops ?? [];
+  const savedCrops = user.savedCrops || [];
+  const featureChecklist = user.featureChecklist;
 
-  res.render("gardenpage", { crops, savedCrops, name: req.session.name });
+  res.render("gardenpage", { crops, savedCrops, name: req.session.name, featureChecklist });
 });
 
 app.post("/saveCrop", async (req, res) => {
-  if (!req.session.authenticated) return res.redirect('/login');
+  if (!req.session.authenticated) return res.redirect('/gardenpage');
 
   const { cropId, action } = req.body;
 
@@ -198,6 +202,19 @@ app.post("/saveCrop", async (req, res) => {
       { $pull: { savedCrops: cropId } }
     );
   }
+
+  res.json({ success: true });
+});
+
+app.post('/api/user/skip-feature', async (req, res) => {
+  if (!req.session.authenticated) return res.redirect('/gardenpage');
+
+  const { feature } = req.body;
+
+  await userCollection.updateOne(
+    { _id: new ObjectId(req.session.userId) },
+    { $set: { [`featureChecklist.${feature}`]: true } }
+  );
 
   res.json({ success: true });
 });
@@ -322,13 +339,21 @@ app.post("/locationSubmit", async (req, res) => {
   res.redirect("/gardenpage");
 });
 // Map Page
-app.get("/map", (req, res) => {
+app.get("/map", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
+<<<<<<< HEAD
   res.render("map", {
      MAPTILER_KEY: process.env.MAPTILER_KEY
   });
+=======
+
+  const user = await userCollection.findOne({ username: req.session.name });
+  const featureChecklist = user.featureChecklist;
+
+  res.render("map", {featureChecklist});
+>>>>>>> Jemsel_Jumapit_popupchallenge
 });
 
 //---------//
