@@ -86,73 +86,82 @@ app.get("/", (req, res) => {
 });
 
 // Signup Page
-app.get("/signup", (req, res) => {
-  res.render("signup");
+app.get("/signuppage", (req, res) => {
+  res.render("signuppage");
 });
-
+ 
 app.post("/signupSubmit", async (req, res) => {
   const { username, email, password } = req.body;
-
+ 
   const schema = Joi.object({
     username: usernameSchema,
     email: emailSchema,
     password: passwordSchema,
   });
   const validationResult = schema.validate({ username, email, password });
-
+ 
   if (validationResult.error) {
-    return res.render("signup", {
+    return res.render("signuppage", {
       message: validationResult.error.details[0].message,
     });
   }
-
+ 
+  const existingUser = await userCollection.findOne({ email });
+  if (existingUser) {
+    return res.render("signuppage", {
+      message: "An account with this Email already exists."
+    });
+  }
+ 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  await userCollection.insertOne({ username, email, password: hashedPassword });
-
+  const result = await userCollection.insertOne({ username, email, password: hashedPassword });
+ 
   req.session.authenticated = true;
   req.session.name = username;
+  req.session.userId = result.insertedId.toString(); 
   res.redirect("/locationsubmitpage");
 });
 
 // Login Page
-app.get("/login", (req, res) => {
-  res.render("login");
+app.get("/loginpage", (req, res) => {
+  res.render("loginpage");
 });
-
+ 
 app.post("/loginSubmit", async (req, res) => {
   const { email, password } = req.body;
-
+ 
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
   });
-
+ 
   const validationResult = schema.validate({ email, password });
-
+ 
   if (validationResult.error) {
     const errorMessage = validationResult.error.details[0].message;
-    res.render("login", { errorMessage });
+    res.render("loginpage", { errorMessage });
     return;
   }
-
+ 
   const user = await userCollection.findOne({ email });
   if (!user) {
-    res.render("login", {
+    res.render("loginpage", {
       errorMessage: "Invalid email/password combination.",
     });
     return;
   }
-
+ 
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
-    res.render("login", {
+    res.render("loginpage", {
       errorMessage: "Invalid email/password combination.",
     });
     return;
   }
-
+ 
   req.session.authenticated = true;
   req.session.name = user.username;
+  req.session.userId = user._id.toString(); // store _id
   res.redirect("/gardenpage");
 });
 
@@ -175,28 +184,28 @@ app.get("/gardenpage", async (req, res) => {
 
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) {
-    return res.redirect("/login");
+    return res.redirect("/loginpage");
   }
-
+ 
   const user = await userCollection.findOne(
-    { username: req.session.name },
+    { _id: new ObjectId(req.session.userId) },
     { projection: { password: 0 } },
   );
-
+ 
   res.render("profilepage", { user });
 });
-
+ 
 app.post("/updateProfile", async (req, res) => {
-  if (!req.session.authenticated) return res.redirect("/login");
-
+  if (!req.session.authenticated) return res.redirect("/loginpage");
+ 
   const { username, email } = req.body;
-
+ 
   const schema = Joi.object({ username: usernameSchema, email: emailSchema });
   const validationResult = schema.validate({ username, email });
-
+ 
   if (validationResult.error) {
     const user = await userCollection.findOne(
-      { username: req.session.name },
+      { _id: new ObjectId(req.session.userId) },
       { projection: { password: 0 } },
     );
     return res.render("profilepage", {
@@ -204,16 +213,28 @@ app.post("/updateProfile", async (req, res) => {
       errorMessage: validationResult.error.details[0].message,
     });
   }
-
+ 
+  const existingUser = await userCollection.findOne({ email });
+  if (existingUser && existingUser._id.toString() !== req.session.userId) {
+    const user = await userCollection.findOne(
+      { _id: new ObjectId(req.session.userId) },
+      { projection: { password: 0 } },
+    );
+    return res.render("profilepage", {
+      user,
+      errorMessage: "An account with this email already exists."
+    });
+  }
+ 
   await userCollection.updateOne(
-    { username: req.session.name },
+    { _id: new ObjectId(req.session.userId) },
     { $set: { username, email } },
   );
-
+ 
   req.session.name = username;
   res.redirect("/profile");
 });
-
+ 
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
@@ -228,11 +249,11 @@ app.get("/zonepage", async (req, res) => {
 
 // Location Submit Page
 app.get("/locationsubmitpage", async (req, res) => {
-  if (!req.session.authenticated) return res.redirect("/login");
-
+  if (!req.session.authenticated) return res.redirect("/loginpage");
+ 
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
-
+ 
   const cities = zones.flatMap(z =>
     z.areas.split(",").map(a => ({
       name: a.trim(),
@@ -240,28 +261,28 @@ app.get("/locationsubmitpage", async (req, res) => {
       zoneName: z.zone
     }))
   ).sort((a, b) => a.name.localeCompare(b.name));
-
+ 
   res.render("locationsubmitpage", { cities });
 });
-
+ 
 app.post("/locationSubmit", async (req, res) => {
   const { city } = req.body;
-
+ 
   const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
-
+ 
   const matchedZone = zones.find(z =>
     z.areas.split(",").map(a => a.trim().toLowerCase()).includes(city)
   );
-
+ 
   await userCollection.updateOne(
-    { username: req.session.name },
+    { _id: new ObjectId(req.session.userId) },
     { $set: {
         city: city,
         zone: matchedZone ? matchedZone.zone : null
     }}
   );
-
+ 
   res.redirect("/gardenpage");
 });
 //---------//
