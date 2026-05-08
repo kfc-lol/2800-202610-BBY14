@@ -343,17 +343,14 @@ app.get("/map", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/loginpage");
   }
-<<<<<<< HEAD
-  res.render("map", {
-     MAPTILER_KEY: process.env.MAPTILER_KEY
-  });
-=======
 
   const user = await userCollection.findOne({ username: req.session.name });
   const featureChecklist = user.featureChecklist;
 
-  res.render("map", {featureChecklist});
->>>>>>> Jemsel_Jumapit_popupchallenge
+  res.render("map", {
+     MAPTILER_KEY: process.env.MAPTILER_KEY,
+     featureChecklist
+  });
 });
 
 //---------//

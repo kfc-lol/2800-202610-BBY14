@@ -8,22 +8,18 @@
     </div>
     <div id="map"></div>
   </div>
-<<<<<<< HEAD
 </div>
+
+<% if (!featureChecklist.f_map) { %>
+  <%- include('partials/popup.ejs', { featureName: 'f_map' }) %>
+<% } %>
 
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
 <script>
   const MAPTILER_KEY = "<%= MAPTILER_KEY %>";
 </script>
-=======
 
-    <% if (!featureChecklist.f_map) { %>
-      <%- include('partials/popup.ejs', { featureName: 'f_map' }) %>
-    <% } %>
 
-    <!-- MapLibre loading before map.js -->
-    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
->>>>>>> Jemsel_Jumapit_popupchallenge
 
     
 <%- include('partials/footer', { jsFiles: ['map.js'], botNavBar: true, useMap: true }) %>
