@@ -25,17 +25,23 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 const { database } = include("public/js/databaseConnection");
 const userCollection = database.db(mongodb_database).collection("users");
 const cropsCollection = database.db(mongodb_database).collection("crops");
-const tutorialsCollection = database
-  .db(mongodb_database)
-  .collection("tutorials");
+const tutorialsCollection = database.db(mongodb_database).collection("tutorials");
+const zoneCollection = database.db(mongodb_database).collection("zones");
 
-/*
- - for creating a user 
-await userCollection.insertOne({
-  username: username,
-  password: hashedPassword,
-});
-*/
+// Build cities array once at startup
+let cities = [];
+(async () => {
+  const zones = await zoneCollection.find({}).toArray();
+  cities = zones
+    .flatMap((z) =>
+      z.areas.split(",").map((a) => ({
+        name: a.trim(),
+        zoneId: z._id,
+        zoneName: z.zone,
+      }))
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+})();
 
 // Extracted User Schema for usages in signup and editing.
 const usernameSchema = Joi.string().min(5).max(32).required();
@@ -180,7 +186,7 @@ app.post("/loginSubmit", async (req, res) => {
 
   req.session.authenticated = true;
   req.session.name = user.username;
-  req.session.userId = user._id.toString(); // store _id
+  req.session.userId = user._id.toString();
   res.redirect("/gardenpage");
 });
 
@@ -266,6 +272,7 @@ app.get("/savedpage", async (req, res) => {
   });
 });
 
+// Profile Page
 app.get("/profile", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
 
@@ -277,31 +284,50 @@ app.get("/profile", async (req, res) => {
   const flash = req.session.flash || {};
   req.session.flash = null;
 
-  res.render("profilepage", { user, ...flash });
+  res.render("profilepage", { user, cities, ...flash });
 });
 
 app.post("/updateProfile", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
 
-  const { username, email } = req.body;
+  const { username, email, city } = req.body;
 
-  const schema = Joi.object({ username: usernameSchema, email: emailSchema });
-  const validationResult = schema.validate({ username, email });
+  const schema = Joi.object({
+    username: usernameSchema,
+    email: emailSchema,
+    city: Joi.string().optional().allow(""),
+  });
+  const validationResult = schema.validate({ username, email, city });
 
   if (validationResult.error) {
-    req.session.flash = { errorMessage: validationResult.error.details[0].message };
+    req.session.flash = {
+      errorMessage: validationResult.error.details[0].message,
+    };
     return res.redirect("/profile");
   }
 
   const existingUser = await userCollection.findOne({ email });
   if (existingUser && existingUser._id.toString() !== req.session.userId) {
-    req.session.flash = { errorMessage: "An account with this email already exists." };
+    req.session.flash = {
+      errorMessage: "An account with this email already exists.",
+    };
     return res.redirect("/profile");
   }
 
+  // Look up zone from in-memory cities array
+  const cityData = cities.find(
+    (c) => c.name.toLowerCase() === city.toLowerCase()
+  );
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
-    { $set: { username, email } },
+    {
+      $set: {
+        username,
+        email,
+        ...(city && { city, zone: cityData ? cityData.zoneName : null }),
+      },
+    },
   );
 
   req.session.name = username;
@@ -314,9 +340,8 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-//Zone Page
+// Zone Page
 app.get("/zonepage", async (req, res) => {
-  const zoneCollection = database.db(mongodb_database).collection("zones");
   const zones = await zoneCollection.find({}).toArray();
   res.render("zonepage", { zones });
 });
@@ -324,42 +349,22 @@ app.get("/zonepage", async (req, res) => {
 // Location Submit Page
 app.get("/locationsubmitpage", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
-
-  const zoneCollection = database.db(mongodb_database).collection("zones");
-  const zones = await zoneCollection.find({}).toArray();
-
-  const cities = zones
-    .flatMap((z) =>
-      z.areas.split(",").map((a) => ({
-        name: a.trim(),
-        zoneId: z._id,
-        zoneName: z.zone,
-      })),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
-
   res.render("locationsubmitpage", { cities });
 });
 
 app.post("/locationSubmit", async (req, res) => {
   const { city } = req.body;
 
-  const zoneCollection = database.db(mongodb_database).collection("zones");
-  const zones = await zoneCollection.find({}).toArray();
-
-  const matchedZone = zones.find((z) =>
-    z.areas
-      .split(",")
-      .map((a) => a.trim().toLowerCase())
-      .includes(city),
+  const matchedCity = cities.find(
+    (c) => c.name.toLowerCase() === city.toLowerCase()
   );
 
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
     {
       $set: {
-        city: city,
-        zone: matchedZone ? matchedZone.zone : null,
+        city,
+        zone: matchedCity ? matchedCity.zoneName : null,
       },
     },
   );
