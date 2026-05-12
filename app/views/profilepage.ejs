@@ -22,6 +22,40 @@
       <input type="email" id="inp-email" name="email" value="<%= user.email %>" autocomplete="email"/>
     </div>
 
+    <div class="field">
+      <label>Location</label>
+      <% if (user.zone) { %>
+      Current Zone: <%= user.zone %>
+      <% } %>
+      <div class="value" id="val-location">
+        <%= user.city ? user.city.charAt(0).toUpperCase() + user.city.slice(1) : 'Not set' %>
+      </div>
+
+      <div id="inp-location" style="display:none;">
+        <div class="dropdown">
+          <button type="button" onclick="toggleDropdown()" class="dropbtn" id="location-dropbtn">
+            <%= user.city ? user.city.charAt(0).toUpperCase() + user.city.slice(1) : 'Select City' %> ▼
+          </button> 
+          <div id="cityDropdown" class="dropdown-content" style="display:none;">
+            <input type="text" placeholder="Search" id="citySearch" onkeyup="filterCities()" />
+            <% cities.forEach(c => { %>
+              <a href="#" data-city="<%= c.name.toLowerCase() %>" data-zone="<%= c.zoneName %>" onclick="selectCity(this, event)">
+                <%= c.name %>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+
+        <p id="selectedDisplay" <% if (!user.zone) { %> style="display:none;" <% } %>>
+          Zone: <strong id="displayZone"><%= user.zone || '' %></strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- Pre-filled with existing city so it submits even if user doesn't change it -->
+    <input type="hidden" id="cityInput" value="<% if (user.city) { %><%= user.city %><% } %>" />
+
+  </br>
     <button id="edit-btn" onclick="startEdit()">Edit profile</button>
     <button id="save-buttn" onclick="submitProfile()">Save changes</button>
     <button id="cancel-btn" onclick="cancelEdit()">Cancel</button>
@@ -29,6 +63,7 @@
     <form id="profile-form" action="/updateProfile" method="POST" style="display:none">
       <input type="hidden" id="form-username" name="username" />
       <input type="hidden" id="form-email" name="email" />
+      <input type="hidden" id="form-city" name="city" />
     </form>
 
     </br>
