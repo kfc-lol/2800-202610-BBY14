@@ -199,7 +199,7 @@ app.get("/gardenpage", async (req, res) => {
   }
 
   const crops = await cropsCollection.find({}).toArray();
-  const user = await userCollection.findOne({ username: req.session.name });
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
   const savedCrops = user.savedCrops || [];
   const featureChecklist = user.featureChecklist;
   const popup = await tutorialsCollection.findOne({ page: "f_croptutorial" });
@@ -207,7 +207,7 @@ app.get("/gardenpage", async (req, res) => {
   res.render("gardenpage", {
     crops,
     savedCrops,
-    name: req.session.name,
+    name: user.username,
     featureChecklist,
     popup,
   });
@@ -220,12 +220,12 @@ app.post("/saveCrop", async (req, res) => {
 
   if (action === "save") {
     await userCollection.updateOne(
-      { username: req.session.name },
+      { _id: new ObjectId(req.session.userId) },
       { $addToSet: { savedCrops: cropId } },
     );
   } else if (action === "unsave") {
     await userCollection.updateOne(
-      { username: req.session.name },
+      { _id: new ObjectId(req.session.userId) },
       { $pull: { savedCrops: cropId } },
     );
   }
@@ -250,7 +250,7 @@ app.post("/api/user/skip-feature", async (req, res) => {
 app.get("/savedpage", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/login");
 
-  const user = await userCollection.findOne({ username: req.session.name });
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
   if (!user) return res.redirect("/login");
 
   const savedCrops = user.savedCrops ?? [];

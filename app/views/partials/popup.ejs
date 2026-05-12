@@ -6,11 +6,14 @@
   <% popup.steps.forEach((step, i) => { %>
     <li class="popup-step" data-step="<%= i %>" style="display:none"><%= step %></li>
   <% }) %>
-    
+
   <p class="popup-step-text"></p>
-  </br>
-  <button class="popup-next">Next</button>
-  <button class="popup-skip" id="<%= featureName %>">Skip Tutorial</button>
+
+  <div class="popup-buttons">
+    <button class="popup-next">Next</button>
+    <button class="popup-skip" id="<%= featureName %>">Skip Tutorial</button>
+  </div>
 </div>
+
 
 <script src="/js/popup.js"></script>

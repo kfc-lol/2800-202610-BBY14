@@ -1,9 +1,5 @@
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="/css/locationsubmitpage.css">
-<link rel="stylesheet" href="/css/styles.css">
-
+<%- include('partials/header', {title: 'GroCrop',cssFiles: [ 'locationsubmitpage.css', 'styles.css' ], topNavBar: false}) %>
 <div>
   <div class="dropdown">
     <label for="dropbtn">Where will you be gardening?</label><br>
@@ -18,13 +14,11 @@
     </div>
   </div>
 
-  <!-- Shows selected city and zone -->
   <p id="selectedDisplay" style="display:none;">
     <strong id="displayCity"></strong><br>
     Your city is in Zone: <br> <strong id="displayZone"></strong>
   </p>
 
-  <!-- Hidden form that submits the chosen city -->
   <form action="/locationSubmit" method="POST">
     <input type="hidden" name="city" id="cityInput" />
     <button type="submit" id="submitBtn" style="display:none;">Continue</button>
@@ -40,5 +34,5 @@
       so you can have a more successful garden.
     </p>
   </div>
-  <script src="/js/location.js"></script>
 </div>
+<%- include('partials/footer', { jsFiles: ['location.js'], botNavBar: false }) %>
