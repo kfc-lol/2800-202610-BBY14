@@ -1,6 +1,6 @@
-
 <%- include('partials/header', {title: 'GroCrop',cssFiles: [ 'locationsubmitpage.css', 'styles.css' ], topNavBar: false}) %>
-<div>
+
+<div class="submit-page-container">
   <div class="dropdown">
     <label for="dropbtn">Where will you be gardening?</label><br>
     <button onclick="toggleDropdown()" class="dropbtn">Select City</button>
@@ -35,4 +35,5 @@
     </p>
   </div>
 </div>
+
 <%- include('partials/footer', { jsFiles: ['location.js'], botNavBar: false }) %>
