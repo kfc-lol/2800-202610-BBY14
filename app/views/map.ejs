@@ -8,7 +8,19 @@
       <button id="btn-regular" class="active" onclick="switchView('regular')">Map</button>
       <button id="btn-zones" onclick="switchView('zones')">Zones</button>
     </div>
-    <div id="map"></div>
+
+    <div id="zone-banner" style="display:none"></div>
+
+    <div id="map">
+      <div id="zone-legend" style="display:none">
+        <p class="legend-title">Growing Zones</p>
+        <div class="legend-item"><span class="legend-dot" style="background:#7DAF7D"></span>City of Vancouver</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#7AAFC9"></span>North Shore</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#C9A96E"></span>Metro NE</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#C97B7B"></span>Metro SW</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#9B82B8"></span>Metro SE</div>
+      </div>
+    </div>
   </div>
 </div>
 

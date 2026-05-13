@@ -9,6 +9,7 @@ html, body {
   flex: 1;
   min-height: 0;
   width: 100%;
+  position: relative;
 }
 
 .map-toggle {
@@ -27,8 +28,10 @@ html, body {
   border-radius: 99px;
   background: white;
   color: #2E7D32;
+  font-family: "Lexend", sans-serif;
   font-size: 14px;
   font-weight: 500;
+
   cursor: pointer;
 }
 
@@ -40,7 +43,7 @@ html, body {
 .map-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 72px); /* 60px = bottom navbar height */
+  height: calc(100vh - 72px);
   width: 100%;
   box-sizing: border-box;
 }
@@ -50,5 +53,52 @@ html, body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0; 
+  min-height: 0;
+}
+
+#zone-banner {
+  background: #f0f7f0;
+  color: #2E7D32;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-bottom: 1px solid #c8e6c9;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+#zone-legend {
+  position: absolute;
+  bottom: 50px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: "Lexend", sans-serif;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.legend-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: #444;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
 }
