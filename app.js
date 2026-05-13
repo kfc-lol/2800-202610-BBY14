@@ -247,6 +247,37 @@ app.post("/saveCrop", async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Pollinations Image Proxy ─────────────────────────────────────────────
+// Routes crop sprite requests through the server to avoid browser-side 403s
+app.get('/crop-image', async (req, res) => {
+  const url = req.query.url;
+
+  // Only allow Pollinations URLs
+  if (!url || !url.startsWith('https://image.pollinations.ai/')) {
+    return res.status(400).send('Invalid image URL');
+  }
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      console.error('Pollinations returned:', response.status);
+      return res.status(response.status).send('Image fetch failed');
+    }
+
+    // Cache aggressively — same crop name always maps to same image
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('Content-Type', response.headers.get('content-type') || 'image/png');
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error('Crop image proxy error:', err.message);
+    res.status(500).send('Proxy error');
+  }
+});
+// ─────────────────────────────────────────────────────────────────────────
+
 app.post("/api/user/skip-feature", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/gardenpage");
 
