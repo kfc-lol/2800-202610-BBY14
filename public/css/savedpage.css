@@ -1,3 +1,4 @@
+
 .scroll-pane {
   width: 100%;
   overflow-y: auto;
@@ -10,21 +11,33 @@
   scrollbar-gutter: stable;
 }
 
+/* cards */
+.crop-card {
+  border-radius: 28px;
+  background-color: #FFFEF1;
+  max-height: 10vh;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: max-height 0.2s ease-out;
+}
+
+.crop-card.expanded {
+  max-height: 2000px;
+  transition: max-height 0.2s ease-in;
+}
+
 .crop-img {
-  display: inline;
-  justify-self: center;
-  padding-top: 1vh;
-  padding-left: 1vw;
-  height: 8vh;
   width: 8vh;
+  height: 8vh;
   object-fit: cover;
-  border-radius: 15px;
+  border-radius: 20px;
+  display: block;
 }
 
 .crop-name {
   display: inline;
   padding-left: 6vw;
-  padding-top: 3.4vh;
+  padding-top: 0vh;
   color: #7C745B;
 }
 
@@ -49,17 +62,50 @@
 
 .card-grid {
   display: grid;
-  grid-template-columns: 20% 50% 15% 15%;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
   height: 10vh;
+  padding-left: 11px;
+  padding-right: 28px; 
+  gap: 2vw;
 }
 
+/* save buttons */
 .save-button {
-  padding-top: 3.3vh;
   height: 3.5vh;
   justify-self: right;
   z-index: 3;
+
+  transform: scale(1);
+  transition: transform 0.12s ease;
+  user-select: none;
 }
 
+.save-button:active {
+  transform: scale(0.85);
+  transition: transform 0.08s ease;
+}
+
+/* --- */
+
+.unsave-button {
+  padding-bottom: 3.3vh;
+  height: 3.5vh;
+  justify-self: right;
+  z-index: 3;
+
+  transform: scale(1);
+  transition: transform 0.12s ease;
+  user-select: none;
+}
+
+.unsave-button:active {
+  transform: scale(0.85);
+  transition: transform 0.08s ease;
+}
+
+
+/* --- */
 .unsave-button {
   padding-top: 3.3vh;
   height: 3.5vh;
@@ -83,33 +129,20 @@
 }
 
 .searchbar {
+  display: flex;
   justify-content: center;
-  display: grid;
-  grid-template-columns: 70% 10%;
+  width: 100%;
   padding-bottom: 2vh;
   padding-top: 1vh;
 }
 
 #crop-search {
-  width: 70vw;
-  height: 5vh;
+  width: 80%;
+  height: 6vh;
   border-radius: 30px;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding-left: 15px;
+  padding-right: 45px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  font-size: 2vh;
 }
-
-#crop-search-icon {
-  height: 3vh;
-  padding-left: 1vw;
-  padding-top: 1vh;
-}
-
-#crop-search-button {
-  border-radius: 30px;
-  transition: background-color 0.3s ease;
-}
-
-#crop-search-button:hover {
-  background-color: #c5c5c5;
-}
-

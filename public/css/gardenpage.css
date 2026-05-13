@@ -8,15 +8,18 @@
   height: auto;
 }
 
-p {
-  padding-top: 10vh;
+#welcome-text-gp {
+  justify-self: center;
+  font-size: 4vh;
+  font-weight: bold;
+}
+
+.popup-step-text {
   font-size: 2vh;
   width: 90%;
 }
 
-h1,
-h2,
-h3 {
+.crop-name {
   padding-top: 10vh;
   font-size: 3vh;
   width: 90%;
@@ -50,27 +53,24 @@ h3 {
 }
 
 .crop-img {
-  display: inline;
-  justify-self: center;
-  padding-top: 1vh;
-  padding-left: 1vw;
-  height: 8vh;
   width: 8vh;
+  height: 8vh;
   object-fit: cover;
-  border-radius: 15px;
+  border-radius: 20px;
+  display: block;
 }
 
 .crop-name {
   display: inline;
   padding-left: 6vw;
-  padding-top: 3.4vh;
+  padding-top: 0vh;
   color: #7C745B;
 }
 
 .crop-zone {
   padding-top: 3vh;
   padding-bottom: 3vh;
-  padding-left: 1vh;
+  padding-left: 3vh;
 }
 
 .crop-title {
@@ -88,13 +88,16 @@ h3 {
 
 .card-grid {
   display: grid;
-  grid-template-columns: 20% 50% 15% 15%;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
   height: 10vh;
+  padding-left: 11px;
+  padding-right: 28px; 
+  gap: 2vw;
 }
 
 /* save buttons */
 .save-button {
-  padding-top: 3.3vh;
   height: 3.5vh;
   justify-self: right;
   z-index: 3;
@@ -112,7 +115,7 @@ h3 {
 /* --- */
 
 .unsave-button {
-  padding-top: 3.3vh;
+  padding-bottom: 3.3vh;
   height: 3.5vh;
   justify-self: right;
   z-index: 3;
@@ -152,33 +155,35 @@ h3 {
 }
 
 .searchbar {
+  display: flex;
   justify-content: center;
-  display: grid;
-  grid-template-columns: 70% 10%;
+  width: 100%;
   padding-bottom: 2vh;
   padding-top: 1vh;
 }
 
+.search-wrapper {
+  position: relative;
+  width: 90%; 
+}
+
 #crop-search {
-  width: 70vw;
-  height: 5vh;
+  width: 100%;
+  height: 6vh;
   border-radius: 30px;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding-left: 15px;
+  padding-right: 45px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  font-size: 2vh;
 }
 
 #crop-search-icon {
-  height: 3vh;
-  padding-left: 1vw;
-  padding-top: 1vh;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2.5vh;
+  width: auto;
+  pointer-events: none;
 }
-
-#crop-search-button {
-  border-radius: 30px;
-  transition: background-color 0.3s ease;
-}
-
-#crop-search-button:hover {
-  background-color: #c5c5c5;
-}
-
