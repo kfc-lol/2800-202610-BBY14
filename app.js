@@ -59,6 +59,20 @@ const passwordSchema = Joi.string()
       "Password must contain at least one uppercase letter and one number.",
   });
 
+const optionalPasswordSchema = Joi.string()
+  .min(8)
+  .max(20)
+  .pattern(new RegExp("(?=.*[a-z])"))
+  .pattern(new RegExp("(?=.*[A-Z])"))
+  .pattern(new RegExp("(?=.*[0-9])"))
+  .optional()
+  .allow("")
+  .messages({
+    "string.min": "Password must be at least 8 characters.",
+    "string.pattern.base":
+      "Password must contain at least one uppercase letter and one number.",
+  });
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -290,14 +304,15 @@ app.get("/profile", async (req, res) => {
 app.post("/updateProfile", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/loginpage");
 
-  const { username, email, city } = req.body;
+  const { username, email, city, password } = req.body;
 
   const schema = Joi.object({
     username: usernameSchema,
     email: emailSchema,
     city: Joi.string().optional().allow(""),
+    password: optionalPasswordSchema,
   });
-  const validationResult = schema.validate({ username, email, city });
+  const validationResult = schema.validate({ username, email, city, password });
 
   if (validationResult.error) {
     req.session.flash = {
@@ -319,15 +334,20 @@ app.post("/updateProfile", async (req, res) => {
     (c) => c.name.toLowerCase() === city.toLowerCase()
   );
 
+  const updateFields = {
+    username,
+    email,
+    ...(city && { city, zone: cityData ? cityData.zoneName : null }),
+  };
+
+  // Only hash and save password if one was provided
+  if (password) {
+    updateFields.password = await bcrypt.hash(password, saltRounds);
+  }
+
   await userCollection.updateOne(
     { _id: new ObjectId(req.session.userId) },
-    {
-      $set: {
-        username,
-        email,
-        ...(city && { city, zone: cityData ? cityData.zoneName : null }),
-      },
-    },
+    { $set: updateFields },
   );
 
   req.session.name = username;

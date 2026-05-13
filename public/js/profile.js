@@ -1,6 +1,7 @@
 const fields = [
   { val: "val-username", inp: "inp-username" },
   { val: "val-email", inp: "inp-email" },
+  { val: "val-password", inp: "inp-password" },
 ];
 
 let originalCity = "";
@@ -9,6 +10,7 @@ function startEdit() {
   fields.forEach(({ val, inp }) => {
     document.getElementById(val).style.display = "none";
     document.getElementById(inp).style.display = "flex";
+    document.getElementById("inp-password-confirm").style.display = "flex";
   });
 
   // Capture original city when edit starts
@@ -29,6 +31,10 @@ function cancelEdit() {
     document.getElementById(val).style.display = "";
     document.getElementById(inp).style.display = "none";
   });
+
+  document.getElementById("inp-password-confirm").style.display = "none";
+  document.getElementById("inp-password").value = "";
+  document.getElementById("inp-password-confirm").value = "";
 
   // Restore cityInput to original in case user selected something then cancelled
   document.getElementById("cityInput").value = originalCity;
@@ -52,12 +58,24 @@ function submitProfile() {
   const newUsername = document.getElementById("inp-username").value;
   const newEmail = document.getElementById("inp-email").value;
   const newCity = document.getElementById("cityInput").value.trim();
+  const newPassword = document.getElementById("inp-password").value;
+  const confirmPassword = document.getElementById("inp-password-confirm").value;
 
-  // If nothing changed, just go back to read mode
+  // Check passwords BEFORE the nothing-changed bail out
+  if (newPassword !== confirmPassword) {
+    const err = document.getElementById("client-error");
+    err.textContent = "Passwords do not match.";
+    err.style.display = "block";
+    return;
+  }
+
+  document.getElementById("client-error").style.display = "none";
+
   if (
     originalUsername === newUsername &&
     originalEmail === newEmail &&
-    originalCity === newCity
+    originalCity === newCity &&
+    !newPassword
   ) {
     cancelEdit();
     return;
@@ -66,6 +84,7 @@ function submitProfile() {
   document.getElementById("form-username").value = newUsername;
   document.getElementById("form-email").value = newEmail;
   document.getElementById("form-city").value = newCity;
+  document.getElementById("form-password").value = newPassword;
   document.getElementById("profile-form").submit();
 }
 
@@ -134,9 +153,11 @@ function hideLogoutPrompt() {
   document.getElementById("logout-prompt").style.display = "none";
 }
 
-document.getElementById("logout-prompt").addEventListener("click", function (e) {
-  if (e.target === this) hideLogoutPrompt();
-});
+document
+  .getElementById("logout-prompt")
+  .addEventListener("click", function (e) {
+    if (e.target === this) hideLogoutPrompt();
+  });
 
 function confirmLogout() {
   window.location.href = "/logout";

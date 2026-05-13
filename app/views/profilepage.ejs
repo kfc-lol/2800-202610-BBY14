@@ -23,6 +23,14 @@
     </div>
 
     <div class="field">
+      <label>Password</label>
+      <div class="value" id="val-password">•••••••••</div>
+      <input type="password" id="inp-password" name="password" placeholder="New password" autocomplete="new-password"/>
+      <input type="password" id="inp-password-confirm" name="passwordConfirm" placeholder="Confirm new password" autocomplete="new-password"/>
+    </div>
+    <p id="client-error" style="color: red; display:none;"></p>
+
+    <div class="field">
       <label>Location</label>
       <% if (user.zone) { %>
       Current Zone: <%= user.zone %>
@@ -64,6 +72,7 @@
       <input type="hidden" id="form-username" name="username" />
       <input type="hidden" id="form-email" name="email" />
       <input type="hidden" id="form-city" name="city" />
+      <input type="hidden" id="form-password" name="password" />
     </form>
 
     </br>
