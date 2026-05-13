@@ -3,7 +3,7 @@
   "features": [
     {
       "type": "Feature",
-      "properties": { "zone": "CV", "name": "City of Vancouver", "color": "#4CAF50" },
+      "properties": { "zone": "CV", "name": "City of Vancouver", "color": "#7DAF7D" },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
@@ -23,7 +23,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "zone": "NS", "name": "North Shore", "color": "#2196F3" },
+      "properties": { "zone": "NS", "name": "North Shore", "color": "#7AAFC9" },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
@@ -47,7 +47,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "zone": "MNE", "name": "Metro Vancouver Northeast", "color": "#FF9800" },
+      "properties": { "zone": "MNE", "name": "Metro Vancouver Northeast", "color": "#C9A96E" },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
@@ -68,7 +68,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "zone": "MSW", "name": "Metro Vancouver Southwest", "color": "#F44336" },
+      "properties": { "zone": "MSW", "name": "Metro Vancouver Southwest", "color": "#C97B7B" },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
@@ -85,7 +85,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "zone": "MSE", "name": "Metro Vancouver Southeast", "color": "#9C27B0" },
+      "properties": { "zone": "MSE", "name": "Metro Vancouver Southeast", "color": "#9B82B8" },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
