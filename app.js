@@ -7,6 +7,7 @@ const MongoStore = require("connect-mongo").MongoStore;
 const { ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const { upload } = require('./public/js/cloudinary');
 
 const Joi = require("joi");
 
@@ -407,6 +408,46 @@ app.get("/map", async (req, res) => {
     featureChecklist,
     popup,
   });
+});
+
+//Add Crop Page
+app.get('/addcroppage', (req, res) => {
+  if (!req.session.authenticated) return res.redirect('/loginpage');
+  res.render('addcroppage');
+});
+
+//Handling form submission for user-addded crops
+app.post('/addcroppage', upload.single('image'), async (req, res) => {
+  if (!req.session.authenticated) return res.redirect('/loginpage');
+
+  try {
+    const { name, category, zones } = req.body;
+
+    const information = [
+      { title: "Planting",     content: req.body.info_content_0 },
+      { title: "Watering",     content: req.body.info_content_1 },
+      { title: "Sunlight",     content: req.body.info_content_2 },
+      { title: "Plant Timing", content: req.body.info_content_3 },
+    ];
+
+    const cropCount = await cropsCollection.countDocuments();
+    const newId = String(cropCount + 1).padStart(3, '0');
+
+    await cropsCollection.insertOne({
+      id: newId,
+      name,
+      category,
+      zones,
+      image: req.file.path,
+      information,
+    });
+
+    res.redirect('/gardenpage');
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Something went wrong adding the crop.');
+  }
 });
 
 //---------//
