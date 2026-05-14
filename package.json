@@ -9,7 +9,8 @@
     "joi": "^18.2.1",
     "mongodb": "^7.2.0",
     "mongoose": "^9.6.1",
-    "node": "^26.0.0"
+    "node": "^26.0.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

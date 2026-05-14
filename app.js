@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const express = require("express");
 const session = require("express-session");
+const sharp = require('sharp');
 const MongoStore = require("connect-mongo").MongoStore;
 const { ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
@@ -252,7 +253,6 @@ app.post("/saveCrop", async (req, res) => {
 app.get('/crop-image', async (req, res) => {
   const url = req.query.url;
 
-  // Only allow Pollinations URLs
   if (!url || !url.startsWith('https://image.pollinations.ai/')) {
     return res.status(400).send('Invalid image URL');
   }
@@ -265,12 +265,31 @@ app.get('/crop-image', async (req, res) => {
       return res.status(response.status).send('Image fetch failed');
     }
 
-    // Cache aggressively — same crop name always maps to same image
-    res.set('Cache-Control', 'public, max-age=86400');
-    res.set('Content-Type', response.headers.get('content-type') || 'image/png');
+    const buffer = Buffer.from(await response.arrayBuffer());
 
-    const buffer = await response.arrayBuffer();
-    res.send(Buffer.from(buffer));
+    // Remove white background and output as PNG with transparency
+    const { data, info } = await sharp(buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const pixels = new Uint8Array(data);
+    for (let i = 0; i < pixels.length; i += 4) {
+      const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+      // Make near-white pixels transparent
+      if (r > 220 && g > 220 && b > 220) {
+        pixels[i + 3] = 0;
+      }
+    }
+
+    const pngBuffer = await sharp(Buffer.from(pixels), {
+      raw: { width: info.width, height: info.height, channels: 4 }
+    }).png().toBuffer();
+
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('Content-Type', 'image/png');
+    res.send(pngBuffer);
+
   } catch (err) {
     console.error('Crop image proxy error:', err.message);
     res.status(500).send('Proxy error');
