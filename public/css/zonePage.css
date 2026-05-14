@@ -5,7 +5,6 @@
   padding: 15px;
   margin: 10px;
   border-radius: 10px;
-  cursor: pointer;
   color: #7C745B;
 }
 
@@ -21,9 +20,8 @@
   overflow: hidden;
 }
 
-/* Toggle for showing/hiding dropdown */
-.zoneInfoDropdown.active .cardContent {
-  grid-template-rows: 1fr;
+.cardContent.open {
+   grid-template-rows: 1fr;
 }
 
 .back-btn {
@@ -41,4 +39,29 @@
   font-weight: 500;
 
   cursor: pointer;
+}
+
+.scroll-pane {
+  overflow-y: auto;
+  height: calc(100vh - 120px);
+  padding: 0 1em 1em 1em;
+  box-sizing: border-box;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-button {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-button.open {
+  transform: rotate(180deg);
 }
