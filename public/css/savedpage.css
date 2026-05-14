@@ -1,148 +1,412 @@
+/* ─── Garden Page ─── */
 
-.scroll-pane {
-  width: 100%;
-  overflow-y: auto;
-  height: 70vh;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700&display=swap');
+
+:root {
+  --soil-dark:   #5c3d1e;
+  --soil-mid:    #7a5230;
+  --soil-light:  #a0723d;
+  --grass:       #4a8c3f;
+  --grass-light: #6cb85e;
+  --sky-top:     #aee0f5;
+  --sky-bot:     #d6f0ff;
+  --card-bg:     #fffdf4;
+  --card-border: #c9a96e;
+  --text-main:   #3b2a14;
+  --text-muted:  #7a5c2e;
+  --accent:      #e07b39;
+  --accent2:     #5a9e42;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--soil-dark);
+  font-family: 'Nunito', sans-serif;
+  color: var(--text-main);
+}
+
+/* ─── Wrapper ─── */
+.garden-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2vh;
-  padding: 3vw;
-  box-sizing: border-box;
-  scrollbar-gutter: stable;
+  height: 100%;
+  overflow-y: auto;
 }
 
-/* cards */
-.crop-card {
-  border-radius: 28px;
-  background-color: #FFFEF1;
-  max-height: 10vh;
-  overflow: hidden;
-  flex-shrink: 0;
-  transition: max-height 0.2s ease-out;
-}
-
-.crop-card.expanded {
-  max-height: 2000px;
-  transition: max-height 0.2s ease-in;
-}
-
-.crop-img {
-  width: 8vh;
-  height: 8vh;
-  object-fit: cover;
-  border-radius: 20px;
-  display: block;
-}
-
-.crop-name {
-  display: inline;
-  padding-left: 6vw;
-  padding-top: 0vh;
-  color: #7C745B;
-}
-
-.crop-zone {
-  padding-top: 3vh;
-  padding-bottom: 3vh;
-  padding-left: 3vh;
-}
-
-.crop-title {
-  padding-top: 1vh;
-  padding-bottom: 1vh;
-  padding-left: 3vh;
-  font-weight: bold;
-}
-
-.crop-info {
-  padding-top: 0;
-  padding-bottom: 5vh;
-  padding-left: 3vh;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  height: 10vh;
-  padding-left: 11px;
-  padding-right: 28px; 
-  gap: 2vw;
-}
-
-/* save buttons */
-.save-button {
-  height: 3.5vh;
-  justify-self: right;
-  z-index: 3;
-
-  transform: scale(1);
-  transition: transform 0.12s ease;
-  user-select: none;
-}
-
-.save-button:active {
-  transform: scale(0.85);
-  transition: transform 0.08s ease;
-}
-
-/* --- */
-
-.unsave-button {
-  padding-bottom: 3.3vh;
-  height: 3.5vh;
-  justify-self: right;
-  z-index: 3;
-
-  transform: scale(1);
-  transition: transform 0.12s ease;
-  user-select: none;
-}
-
-.unsave-button:active {
-  transform: scale(0.85);
-  transition: transform 0.08s ease;
-}
-
-
-/* --- */
-.unsave-button {
-  padding-top: 3.3vh;
-  height: 3.5vh;
-  justify-self: right;
-  z-index: 3;
-}
-
-.dropdown-button {
-  height: 3vh;
-  justify-self: center;
-  align-self: center;
-  transition: transform 0.25s ease-out;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-  user-select: none;
-}
-
-.crop-card.expanded .dropdown-button {
-  transform: rotate(180deg);
-}
-
-.searchbar {
+/* ─── Header ─── */
+.garden-header {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1rem 0.75rem;
+  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bot));
+}
+
+.garden-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  text-shadow: 2px 2px 0 #fff8e7, 3px 3px 0 var(--soil-light);
+  letter-spacing: 0.05em;
+}
+
+/* ─── Search ─── */
+.garden-searchbar {
   width: 100%;
-  padding-bottom: 2vh;
-  padding-top: 1vh;
+  max-width: 340px;
 }
 
 #crop-search {
-  width: 80%;
-  height: 6vh;
-  border-radius: 30px;
-  padding-left: 15px;
-  padding-right: 45px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  font-size: 2vh;
+  width: 100%;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 2px solid var(--card-border);
+  background: var(--card-bg);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  outline: none;
+  box-shadow: 2px 2px 0 var(--soil-light);
+  transition: box-shadow 0.15s;
+}
+#crop-search:focus {
+  box-shadow: 3px 3px 0 var(--soil-mid);
+}
+
+/* ─── Empty State ─── */
+.empty-garden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 3.5rem; }
+
+/* ─── Garden Scene ─── */
+.garden-scene {
+  display: flex;
+  flex-direction: column;
+}
+
+.garden-sky {
+  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bot));
+  height: 1.5rem;
+}
+
+.garden-ground {
+  background: var(--grass);
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.5rem;
+  position: relative;
+}
+
+/* little pixel grass dots */
+.garden-ground::before {
+  content: '';
+  display: block;
+  height: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--grass-light) 0px, var(--grass-light) 8px,
+    var(--grass) 8px, var(--grass) 16px
+  );
+}
+
+/* ─── Grid ─── */
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem 0.75rem;
+  padding: 1rem 0.75rem 1.5rem;
+}
+
+/* ─── Plot ─── */
+.garden-plot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  animation: sprout 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes sprout {
+  from { transform: scale(0.3) translateY(30px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.garden-plot:nth-child(1) { animation-delay: 0.05s; }
+.garden-plot:nth-child(2) { animation-delay: 0.10s; }
+.garden-plot:nth-child(3) { animation-delay: 0.15s; }
+.garden-plot:nth-child(4) { animation-delay: 0.20s; }
+.garden-plot:nth-child(5) { animation-delay: 0.25s; }
+.garden-plot:nth-child(6) { animation-delay: 0.30s; }
+.garden-plot:nth-child(7) { animation-delay: 0.35s; }
+.garden-plot:nth-child(8) { animation-delay: 0.40s; }
+.garden-plot:nth-child(9) { animation-delay: 0.45s; }
+
+/* Soil mound */
+.plot-soil {
+  width: 80px;
+  height: 18px;
+  background: radial-gradient(ellipse at 50% 40%, var(--soil-light) 0%, var(--soil-dark) 90%);
+  border-radius: 50%;
+  margin-top: 4px;
+  border: 2px solid var(--soil-dark);
+  position: relative;
+  z-index: 0;
+  image-rendering: pixelated;
+  box-shadow: 0 3px 0 #3a1f07;
+}
+
+/* Plant sprite sits above soil */
+.plant-sprite {
+  width: 64px;
+  height: 72px;
+  margin-bottom: -16px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+.garden-plot:hover .plant-sprite {
+  transform: translateY(-6px) scale(1.1);
+}
+.garden-plot:active .plant-sprite {
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* pixel art image */
+.plant-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 6px;
+  mix-blend-mode: multiply;
+}
+
+/* ─── Pixel Loading Dots ─── */
+.pixel-loading {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  padding-bottom: 6px;
+}
+.pixel-loading span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: var(--grass-light);
+  border-radius: 1px;
+  animation: pixelbounce 0.8s infinite ease-in-out;
+  image-rendering: pixelated;
+}
+.pixel-loading span:nth-child(2) { animation-delay: 0.15s; }
+.pixel-loading span:nth-child(3) { animation-delay: 0.30s; }
+@keyframes pixelbounce {
+  0%,80%,100% { transform: scaleY(1);   background: var(--grass-light); }
+  40%          { transform: scaleY(1.8); background: var(--accent2); }
+}
+
+/* ─── Plant Label ─── */
+.plant-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.42rem;
+  color: #fff;
+  text-shadow: 1px 1px 0 var(--soil-dark);
+  background: rgba(60,30,5,0.72);
+  padding: 3px 6px;
+  border-radius: 3px;
+  max-width: 90px;
+  text-align: center;
+  margin-top: 2px;
+  line-height: 1.4;
+  z-index: 3;
+  border: 1px solid rgba(255,255,255,0.2);
+  word-break: break-word;
+}
+
+/* ─── Unsave Button ─── */
+.unsave-btn {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  background: #d43a2a;
+  color: #fff;
+  border: 2px solid #8c1a0d;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.15s;
+  line-height: 1;
+  box-shadow: 2px 2px 0 #5c0e07;
+}
+.garden-plot:hover .unsave-btn { opacity: 1; }
+.unsave-btn:hover { background: #b52b1c; }
+
+/* ─── Ground strip ─── */
+.ground-strip {
+  height: 2rem;
+  background: var(--soil-dark);
+  border-top: 4px solid var(--soil-mid);
+}
+
+/* ─── Modal ─── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(30,15,5,0.72);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.modal-backdrop.open {
+  display: flex;
+  animation: fadein 0.18s ease;
+}
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+.crop-modal {
+  background: var(--card-bg);
+  border: 3px solid var(--card-border);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -6px 0 var(--soil-dark);
+  animation: slideup 0.22s cubic-bezier(0.34,1.2,0.64,1) both;
+  overflow: hidden;
+}
+@keyframes slideup {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 0.85rem;
+  border-bottom: 2px solid var(--card-border);
+  background: #fff8e7;
+}
+
+.modal-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  /* mix-blend-mode: multiply; */
+  border-radius: 6px;
+  border: 2px solid var(--card-border);
+  background: #e8f4d9;
+  flex-shrink: 0;
+}
+
+.modal-title-group {
+  flex: 1;
+  min-width: 0;
+}
+.modal-title-group h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.72rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.modal-zones {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  background: var(--grass);
+  color: #fff;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--card-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+}
+.modal-close:hover { background: #fcecd5; }
+
+.modal-body {
+  overflow-y: auto;
+  padding: 1rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-block { display: flex; flex-direction: column; gap: 0.2rem; }
+.info-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.info-content {
+  font-size: 0.93rem;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* hidden plots during search */
+.garden-plot.hidden { display: none; }
+
+/* ─── Footer fix ─── */
+/* Assumes your botNavBar footer has a known class — adjust selector to match your partial */
+.bottom-nav,
+footer,
+nav[class*="bot"],
+nav[class*="bottom"] {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--card-bg);
+  border-top: 2px solid var(--card-border);
+}
+
+/* Push garden content above fixed footer */
+.garden-ground {
+  padding-bottom: 5rem;
 }
