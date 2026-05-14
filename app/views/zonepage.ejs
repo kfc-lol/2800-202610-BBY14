@@ -1,6 +1,10 @@
 <%- include('partials/header', {title: 'GroCrop',cssFiles: ['zonePage.css'], topNavBar: true}) %>
       <div class="content">
 
+        <button class="back-btn" onclick="window.location.href='/map'">
+            <img src="/img/arrow_left_alt.png" alt="Back arrow"> 
+            <span>Back to Map</span>
+        </button>
         <!--card on what a microclimate is-->
         <div class="zoneInfoDropdown" onClick = "toggleCard(this)">
             <div class="cardHeader"><b>What is a Microclimate?</b></div>
