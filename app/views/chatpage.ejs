@@ -1,0 +1,26 @@
+<%- include('partials/header', {title: 'GroCrop - Chat', cssFiles: ['chatpage.css'], topNavBar: false}) %>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <h2>Garden Assistant</h2>
+    <p>Ask me anything about gardening in <strong><%= zone %></strong></p>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="message assistant">
+      <div class="bubble">Hi! I'm your GroCrop gardening assistant. Ask me anything about gardening in your zone or general plant advice!</div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="Ask about plants, pests, watering..." />
+    <button onclick="sendMessage()" id="sendBtn">Send</button>
+  </div>
+</div>
+
+<script>
+  const zone = "<%= zone %>";
+  const city = "<%= city %>";
+</script>
+
+<%- include('partials/footer', { jsFiles: ['chat.js'], botNavBar: true }) %>

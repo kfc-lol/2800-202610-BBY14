@@ -459,6 +459,88 @@ app.get("/map", async (req, res) => {
   });
 });
 
+app.get("/chatpage", async (req, res) => {
+  if (!req.session.authenticated) return res.redirect("/loginpage");
+
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+
+  res.render("chatpage", {
+    zone: user.zone || "unknown",
+    city: user.city || "unknown",
+  });
+});
+
+app.post("/api/chat", async (req, res) => {
+  if (!req.session.authenticated) return res.status(401).json({ error: "Unauthorized" });
+
+  const { message, history } = req.body;
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+
+  // Check daily limit
+  const today = new Date().toISOString().split("T")[0]; // "2026-05-14"
+  const lastRequestDate = user.chatLastDate || "";
+  const todayRequests = lastRequestDate === today ? (user.chatRequestsToday || 0) : 0;
+
+  if (todayRequests >= 20) {
+    return res.json({ reply: "You've reached your daily chat limit of 20 messages. Please try again tomorrow." });
+  }
+
+  // Update request count
+  await userCollection.updateOne(
+    { _id: new ObjectId(req.session.userId) },
+    { $set: { chatLastDate: today }, $inc: { chatRequestsToday: lastRequestDate === today ? 1 : 0 } }
+  );
+  // Reset count if new day
+  if (lastRequestDate !== today) {
+    await userCollection.updateOne(
+      { _id: new ObjectId(req.session.userId) },
+      { $set: { chatRequestsToday: 1, chatLastDate: today } }
+    );
+  }
+
+  const systemPrompt = `You are a helpful gardening assistant for GroCrop, a community gardening app. 
+The user is located in ${user.city || "an unknown city"}, in the ${user.zone || "unknown"} gardening zone of Metro Vancouver, BC, Canada.
+Give advice relevant to their zone and local climate where possible. 
+Keep responses concise and practical.`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            ...history.map(m => ({
+              role: m.role,
+              parts: [{ text: m.text }]
+            })),
+            { role: "user", parts: [{ text: message }] }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+    console.log("Gemini raw response:", JSON.stringify(data, null, 2));
+
+    if (data.error) {
+      if (data.error.code === 429) {
+        return res.json({ reply: "I'm a little busy right now, please try again later." });
+      }
+      return res.json({ reply: "Sorry, something went wrong. Please try again." });
+    }
+
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't get a response.";
+    res.json({ reply });
+
+  } catch (err) {
+    console.error("Gemini error:", err);
+    res.status(500).json({ error: "Failed to get response." });
+  }
+});
+
 //---------//
 
 // Error 404 Page
