@@ -1,107 +1,109 @@
-html,
 body {
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
+  display: block;
   overflow: hidden;
 }
 
-.content {
-  display: grid;
-  place-items: center;
+.login-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-
 .login-bg {
-  background-color: rgb(255, 255, 255);
-  padding: 5vw;
-  border-radius: 2vw;
-  box-shadow: 0 0.5vh 2vh rgba(0, 0, 0, 0.1);
-  width: 85vw;
-  max-width: 80vw;
-  min-height: 50%;
+  background: #f1e6c6;
+  border: 3px solid #b3a67a;
+  border-radius: 20px;
+  box-shadow: none;
+  width: 90%;
+  max-width: 480px;
   box-sizing: border-box;
-  padding-bottom: 3vh;
-  padding-top: 3vh;
+  padding: 14px 16px;
 }
 
 .login-text {
-  font-size: 6.5vw;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
+  font-weight: 800;
+  font-family: 'Lexend', sans-serif;
+  color: #2a1f0e;
   text-align: center;
-  margin-bottom: 3vh;
+  margin-bottom: 1rem;
 }
 
 input {
   width: 100%;
-  height: 5vh;
-  font-size: 4vw;
-  margin-bottom: 2vh;
-  padding-left: 3vw;
-  border-radius: 1vw;
+  height: 2.2rem;
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  font-family: 'Lexend', sans-serif;
+  margin-bottom: 0.75rem;
+  padding-left: 0.75rem;
+  border-radius: 8px;
   box-sizing: border-box;
+  background: #FFFEF1;
+  border: 2px solid #b3a67a;
+  color: #2a1f0e;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+input::placeholder {
+  color: #b3a67a;
+  font-weight: 400;
+}
+
+input:focus {
+  border-color: #7C745B;
+  box-shadow: 0 0 0 3px rgba(179, 166, 122, 0.25);
 }
 
 .login-button-container {
-  padding-top: 2vh;
+  padding-top: 0.5rem;
   text-align: center;
-  padding-bottom: 2vh;
+  padding-bottom: 0.5rem;
 }
 
 #login-button {
   display: inline-block;
   text-decoration: none;
-  background-color: #f8fff1;
-  color: #4d4141;
-  padding: 1.5vh 12vw;
-  border-radius: 5vh;
-  font-weight: bold;
-  border: 2px solid #4d4141;
+  background: #d4c08a;
+  color: #2a1f0e;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  border: 2px solid #b3a67a;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0px 3px 0px #4d4141;
+  width: 100%;
+  transition: background 0.15s ease, transform 0.1s ease;
+  transform: scale(1);
+  box-shadow: none;
 }
 
 #login-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 6px 0px #4d4141;
+  background: #b89f6f;
+  transform: none;
+  box-shadow: none;
 }
 
 #login-button:active {
-  transform: translateY(4px);
-  box-shadow: 0px 0px 0px #4d4141;
-}
-
-#login-button {
-  display: inline-block;
-  text-decoration: none;
-  background-color: #f8fff1;
-  color: #4d4141;
-  padding: 1.2vh 12vw;
-  border-radius: 5vh;
-  font-weight: bold;
-  border: 2px solid #4d4141;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0px 3px 0px #4d4141;
-}
-
-#signup-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 6px 0px #4d4141;
-}
-
-#signup-button:active {
-  transform: translateY(4px);
-  box-shadow: 0px 0px 0px #4d4141;
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+  box-shadow: none;
 }
 
 .accountchecktext {
-  padding-top: 7vh;
+  padding-top: 1rem;
 }
 
 .logincheckcontainer {
   text-align: center;
+  font-size: 0.68rem;
+  font-family: 'Lexend', sans-serif;
+  color: #7C745B;
+  font-style: italic;
 }

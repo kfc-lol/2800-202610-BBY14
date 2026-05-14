@@ -1,25 +1,27 @@
 <%- include('partials/header', {title: 'GroCrop',cssFiles: [ 'loginpage.css', 'styles.css' ], topNavBar: false}) %>
 <div class="content">
-    <div class="login-bg">
-        <h1 class="login-text">Log In</h1>
-        <form action="/loginSubmit" method="POST">
-            <p>Email:</p>
-            <input name="email" placeholder="example@email.com" /><br>
-            <p>Password:</p>
-            <input name="password" type="password" placeholder="password" /><br>
-            <% if (locals.errorMessage) { %>
-                <p><%= errorMessage %></p>
-            <% } %>
-            
-            <div class="login-button-container">
-                <button id="login-button" type="submit">Login</button>
-            </div>
+    <div class="login-content">
+        <div class="login-bg">
+            <h1 class="login-text">Log In</h1>
+            <form action="/loginSubmit" method="POST">
+                <p>Email:</p>
+                <input name="email" placeholder="example@email.com" /><br>
+                <p>Password:</p>
+                <input name="password" type="password" placeholder="password" /><br>
+                <% if (locals.errorMessage) { %>
+                    <p><%= errorMessage %></p>
+                <% } %>
+                
+                <div class="login-button-container">
+                    <button id="login-button" type="submit">Login</button>
+                </div>
 
-            
-        </form>
-        <div class="logincheckcontainer">
-            <p class="accountchecktext">If you do not have an account?</p>
-            <a class="loginref" href="signuppage" id="Sign-Up-Button">Sign Up</a>
+                
+            </form>
+            <div class="logincheckcontainer">
+                <p class="accountchecktext">If you do not have an account?</p>
+                <a class="loginref" href="signuppage" id="Sign-Up-Button">Sign Up</a>
+            </div>
         </div>
     </div>
 </div>
