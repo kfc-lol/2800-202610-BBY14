@@ -1,0 +1,80 @@
+<%- include('partials/header', {title: 'Add a Crop', cssFiles: ['addcroppage.css'], topNavBar: true}) %>
+
+<div class="content">
+    <div class="form-wrapper">
+        <div class="crop-form-card">
+            <h1 class="form-title">Add a Crop</h1>
+            <br>
+
+            <form action="/addcroppage" method="POST" enctype="multipart/form-data" class="crop-form">
+
+                <!--Name, Category, and Zones inputs-->
+                <div class="form-">
+                    <label for="name">Crop Name</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Carrot" required />
+                </div>
+
+                <div class="form-row">
+                    <label for="category">Category</label>
+                    <input type="text" id="category" name="category" placeholder="e.g. Leafy green" required />
+                </div>
+            
+                <div class="form-row">
+                    <label for="zones">Zones</label>
+                    <input type="text" id="zones" name="zones" placeholder="e.g. CV, NS, MNE" required />
+                </div>
+
+                <!--Image input-->
+                <div class="form-row">
+                    <label for="image">Crop Image</label>
+                    <input type="file" id="image" name="image" accept="image/*" required />
+                    <img id="preview" src="#" alt="Image preview" class="image-preview" style="display:none;" />
+                </div>
+                <br>
+
+                <!--Input for all planting information for crop-->
+                <p class="section-label">Crop Information</p>   
+
+                <div class="form-row">
+                    <label for="planting-content">Planting</label>
+                    <textarea id="planting-content" name="info_content_0" placeholder="e.g. Plant ½ inch deep..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label for="watering-content">Watering</label>
+                    <textarea id="watering-content" name="info_content_1" placeholder="e.g. Water every 2-3 days..." required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <label for="sunlight-content">Sunlight</label>
+                    <textarea id="sunlight-content" name="info_content_2" placeholder="e.g. Needs 3-6 hours daily..." required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <label for="timing-content">Plant Timing</label>
+                    <textarea id="timing-content" name="info_content_3" placeholder="e.g. Plant in early March..." required></textarea>
+                </div>
+                <br>
+
+                <!--Disclaimer to avoid copyright-->
+                <p class="disclaimer">By uploading an image you confirm you have the right to use it.</p>
+
+                <button type="submit" class="submit-btn">Add Crop</button>
+
+                <!--Picking the file and displaying it-->
+                <script>
+                    document.getElementById('image').addEventListener('change', function(e) {
+                    const preview = document.getElementById('preview');
+                    const file = e.target.files[0];
+                    if (file) {
+                        preview.src = URL.createObjectURL(file);
+                        preview.style.display = 'block';
+                    }
+                    });
+                </script>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer', { jsFiles: [], botNavBar: true }) %>
