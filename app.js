@@ -420,6 +420,9 @@ app.get('/addcroppage', (req, res) => {
 app.post('/addcroppage', upload.single('image'), async (req, res) => {
   if (!req.session.authenticated) return res.redirect('/loginpage');
 
+  console.log('req.file:', req.file);
+  console.log('req.body:', req.body);
+
   try {
     const { name, category, zones } = req.body;
 
@@ -430,15 +433,16 @@ app.post('/addcroppage', upload.single('image'), async (req, res) => {
       { title: "Plant Timing", content: req.body.info_content_3 },
     ];
 
-    const cropCount = await cropsCollection.countDocuments();
-    const newId = String(cropCount + 1).padStart(3, '0');
+    const last = await cropsCollection.find({}).sort({ id: -1 }).limit(1).toArray();
+    const lastNum = last.length > 0 ? parseInt(last[0].id) : 0;
+    const newId = String(lastNum + 1).padStart(3, '0');
 
     await cropsCollection.insertOne({
       id: newId,
       name,
       category,
       zones,
-      image: req.file.path,
+      image: req.file.secure_url,
       information,
     });
 
@@ -446,8 +450,13 @@ app.post('/addcroppage', upload.single('image'), async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send('Something went wrong adding the crop.');
+    res.status(500).send(err.message);
   }
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send(err.message);
 });
 
 //---------//
