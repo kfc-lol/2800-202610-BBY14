@@ -17,7 +17,7 @@
           <div class="crop-card" id="crop-<%= crop.id %>">
 
             <div class="card-grid" >
-              <img src="/img/placeholder.png" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
+              <img src="<%= crop.image || '/img/placeholder.png' %>" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
               <h1 class="crop-name"><%= crop.name %></h1>
 
               
