@@ -44,4 +44,5 @@
       <% if (!featureChecklist.f_croptutorial) { %>
         <%- include('partials/popup.ejs', { featureName: 'f_croptutorial' }) %>
       <% } %>
-<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'saveCrop.js'], botNavBar: true }) %>
+
+<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'saveCrop.js'], botNavBar: true, activePage: 'garden' }) %>

@@ -226,6 +226,7 @@ app.get("/gardenpage", async (req, res) => {
     name: user.username,
     featureChecklist,
     popup,
+    activePage: 'garden',
   });
 });
 
@@ -334,6 +335,7 @@ app.get("/savedpage", async (req, res) => {
     savedCropData,
     featureChecklist,
     popup,
+    activePage: 'saved',
   });
 });
 
@@ -414,7 +416,7 @@ app.get("/logout", (req, res) => {
 // Zone Page
 app.get("/zonepage", async (req, res) => {
   const zones = await zoneCollection.find({}).toArray();
-  res.render("zonepage", { zones });
+  res.render("zonepage", { zones, activePage: null });
 });
 
 // Location Submit Page
@@ -457,6 +459,7 @@ app.get("/map", async (req, res) => {
     MAPTILER_KEY: process.env.MAPTILER_KEY,
     featureChecklist,
     popup,
+    activePage: 'map',
   });
 });
 
