@@ -284,13 +284,6 @@ html, body {
 .garden-plot:hover .unsave-btn { opacity: 1; }
 .unsave-btn:hover { background: #b52b1c; }
 
-/* ─── Ground strip ─── */
-.ground-strip {
-  height: 2rem;
-  background: var(--soil-dark);
-  border-top: 4px solid var(--soil-mid);
-}
-
 /* ─── Modal ─── */
 .modal-backdrop {
   display: none;
