@@ -1,3 +1,53 @@
+.content {
+  position: relative;
+  margin: 40px auto;
+  background: #f1e6c6;
+  border: 6px solid #b3a67a;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  width: 75%;
+  max-width: 360px;
+  z-index: 1000;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+body {
+  min-height: 100vh;
+  background: #DAEDBA;
+  padding-bottom: 80px;
+}
+
+.content h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 auto 20px auto;
+  color: #2a1f0e;
+}
+
+.content label {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #2a1f0e;
+}
+
+#edit-btn, #save-buttn, #cancel-btn, #logout-btn {
+  background: #d4c08a;
+  border: 2px solid #b3a67a;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #2a1f0e;
+  cursor: pointer;
+  height: auto;
+}
+
+#edit-btn:hover, #save-buttn:hover, #cancel-btn:hover {
+  background: #b89f6f;
+}
+
 .field .value {
   padding: 8px 10px;
   background: #fff;
