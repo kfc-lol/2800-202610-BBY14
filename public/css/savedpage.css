@@ -28,6 +28,18 @@ html, body {
   color: var(--text-main);
 }
 
+/* grass canvas sits behind everything in garden-ground */
+.garden-ground {
+  position: relative;  /* already set, just confirming */
+  isolation: isolate;  /* ADD THIS — creates a new stacking context */
+}
+
+/* every direct child of garden-ground except the canvas floats above it */
+.garden-grid {
+  position: relative;
+  z-index: 1;
+}
+
 /* ─── Wrapper ─── */
 .garden-wrapper {
   display: flex;
@@ -101,24 +113,22 @@ html, body {
 }
 
 .garden-ground {
-  background: var(--grass);
+  background: #577a48;
   display: flex;
   flex-direction: column;
   padding-top: 0.5rem;
   position: relative;
+  overflow: hidden; /* required */
 }
 
-/* little pixel grass dots */
-.garden-ground::before {
-  content: '';
-  display: block;
-  height: 8px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--grass-light) 0px, var(--grass-light) 8px,
-    var(--grass) 8px, var(--grass) 16px
-  );
+.garden-ground canvas.grass-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
+
 
 /* ─── Grid ─── */
 .garden-grid {
@@ -128,6 +138,7 @@ html, body {
   padding: 1rem 0.75rem 1.5rem;
 }
 
+
 /* ─── Plot ─── */
 .garden-plot {
   display: flex;
@@ -136,6 +147,12 @@ html, body {
   position: relative;
   cursor: pointer;
   animation: sprout 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+
+  /* FIX: Stops the blue flicker on the entire clickable area */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; /* Prevents long-press menu on mobile */
+  user-select: none;           /* Prevents text/image selection */
+  outline: none;               /* Removes focus ring if it's a button/link */
 }
 
 @keyframes sprout {
@@ -155,16 +172,16 @@ html, body {
 
 /* Soil mound */
 .plot-soil {
-  width: 80px;
-  height: 18px;
-  background: radial-gradient(ellipse at 50% 40%, var(--soil-light) 0%, var(--soil-dark) 90%);
-  border-radius: 50%;
-  margin-top: 4px;
-  border: 2px solid var(--soil-dark);
-  position: relative;
-  z-index: 0;
+  width: 69px;
+  height: 69px;
+  object-fit: contain;
   image-rendering: pixelated;
-  box-shadow: 0 3px 0 #3a1f07;
+  display: block;
+  margin-top: -15px;
+
+  /* FIX: Prevents blue flicker and selection */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 /* Plant sprite sits above soil */
@@ -195,8 +212,11 @@ html, body {
   image-rendering: crisp-edges;
   border-radius: 6px;
   mix-blend-mode: multiply;
-}
 
+  /* FIX: Prevents blue flicker and selection */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
 /* ─── Pixel Loading Dots ─── */
 .pixel-loading {
   display: flex;
