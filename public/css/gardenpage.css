@@ -156,15 +156,17 @@
 
 .searchbar {
   display: flex;
-  justify-content: center;
-  width: 100%;
+  align-items: center;      
+  gap: 10px;                  
+  width: 90%;
   padding-bottom: 2vh;
   padding-top: 1vh;
 }
 
 .search-wrapper {
   position: relative;
-  width: 90%; 
+  flex: 1;            
+  padding-left: 2vh;    
 }
 
 #crop-search {
@@ -172,18 +174,46 @@
   height: 6vh;
   border-radius: 30px;
   padding-left: 15px;
-  padding-right: 45px;
+  padding-right: 15px;    
   box-sizing: border-box;
   border: 1px solid #ccc;
   font-size: 2vh;
 }
 
-#crop-search-icon {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 2.5vh;
+.search-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#crop-bot-icon {
+  height: 4vh;
   width: auto;
-  pointer-events: none;
+}
+
+.add-crop-btn {
+  flex-shrink: 0;
+  background-color: #6a8f4b;
+  color: #FFFEF1;
+  border: none;
+  border-radius: 20px;
+  padding: 1vh 3vw;
+  font-size: 1.6vh;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transform: scale(1);
+  transition: transform 0.12s ease, background-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.add-crop-btn:active {
+  transform: scale(0.92);
+  background-color: #587a3a;
 }

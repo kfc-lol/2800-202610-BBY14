@@ -1,48 +1,61 @@
-<%- include('partials/header', {title: 'GroCrop',cssFiles: ['gardenpage.css'], topNavBar: true}) %>
-      <!-- <img id="background" src="/img/bg1.png">   -->   
-      <div class="content">
-        <p id="welcome-text-gp">Hello, <%= name %>.</p>
-      </div>
+<%- include('partials/header', {title: 'GroCrop' ,cssFiles: ['gardenpage.css'], topNavBar: true}) %>
+  <!-- <img id="background" src="/img/bg1.png">   -->
+  <div class="content">
+    <p id="welcome-text-gp">Hello, <%= name %>.</p>
+  </div>
 
-      <!-- Scroll Pane -->
-      <div class="searchbar">
-        <div class="search-wrapper">
-          <input type="text" id="crop-search" name="q" placeholder="Search for a crop..." oninput="filterCrops(this.value)">
-          <img src="/img/searchicon.png" id="crop-search-icon" alt="search_icon">
-        </div>
-      </div>
+  <!-- Scroll Pane -->
+  <div class="searchbar">
+    <div class="search-wrapper">
+      <input type="text" id="crop-search" name="q" placeholder="Search for a crop..." oninput="filterCrops(this.value)">
+    </div>
+    <button class="add-crop-btn" onclick="window.location.href='/addcroppage'" aria-label="Add a crop">Add A Crop</button>
+    <button class="search-btn" onclick="window.location.href='/chatpage'">
+      <img src="/img/bot.png" id="crop-bot-icon" alt="bot_icon">
+    </button>
+  </div>
+  
 
-      <div class="scroll-pane">
-        <% for (let crop of crops) { %>
-          <div class="crop-card" id="crop-<%= crop.id %>">
+  <div class="scroll-pane">
+    <% for (let crop of crops) { %>
+      <div class="crop-card" id="crop-<%= crop.id %>">
 
-            <div class="card-grid" >
-              <img src="<%= crop.image || '/img/placeholder.png' %>" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
-              <h1 class="crop-name"><%= crop.name %></h1>
+        <div class="card-grid">
+          <img src="<%= crop.image || '/img/placeholder.png' %>" class="crop-img" alt="crop-image"
+            id="img-<%= crop.id %>">
+          <h1 class="crop-name">
+            <%= crop.name %>
+          </h1>
 
-              
-              <% if (savedCrops.includes(crop.id)) { %>
-                <img src="/img/savedbookmark.png" alt="bookmark-icon" class="save-button" id="<%= crop.id %>">
-              <% } else { %>
-                <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsave-button" id="<%= crop.id %>">
+
+          <% if (savedCrops.includes(crop.id)) { %>
+            <img src="/img/savedbookmark.png" alt="bookmark-icon" class="save-button" id="<%= crop.id %>">
+            <% } else { %>
+              <img src="/img/unsavedbookmark.png" alt="bookmark-icon" class="unsave-button" id="<%= crop.id %>">
               <% } %>
-              
-              <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-button">
-            </div>
 
-            <p class="crop-zone">Zones: <%= crop.zones %></p>
-            
-            <% for (let info of crop.information) { %>
-              <p class="crop-title"> <%= info.title %> </p>
-              <p class="crop-info"> <%= info.content %> </p>
-            <% } %>
+                <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-button">
+        </div>
 
-          </div>
-        <% } %>
+        <p class="crop-zone">Zones: <%= crop.zones %>
+        </p>
+
+        <% for (let info of crop.information) { %>
+          <p class="crop-title">
+            <%= info.title %>
+          </p>
+          <p class="crop-info">
+            <%= info.content %>
+          </p>
+          <% } %>
+
       </div>
+      <% } %>
+  </div>
 
-      <% if (!featureChecklist.f_croptutorial) { %>
-        <%- include('partials/popup.ejs', { featureName: 'f_croptutorial' }) %>
+  <% if (!featureChecklist.f_croptutorial) { %>
+    <%- include('partials/popup.ejs', { featureName: 'f_croptutorial' }) %>
       <% } %>
 
-<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'saveCrop.js'], botNavBar: true, activePage: 'garden' }) %>
+        <%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js' , 'saveCrop.js' ], botNavBar:
+          true, activePage: 'garden' }) %>
