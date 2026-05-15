@@ -3,15 +3,22 @@ require("dotenv").config();
 
 const express = require("express");
 const session = require("express-session");
+const sharp = require('sharp');
 const MongoStore = require("connect-mongo").MongoStore;
 const { ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+const { upload } = require('./public/js/cloudinary');
+const fs = require('fs');
+const crypto = require('crypto');
 
 const Joi = require("joi");
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const IMAGE_CACHE_DIR = require('path').join(__dirname, 'cache', 'crop-images');
+fs.mkdirSync(IMAGE_CACHE_DIR, { recursive: true });
 
 // Secret Information
 const mongodb_host = process.env.MONGODB_HOST;
@@ -224,6 +231,7 @@ app.get("/gardenpage", async (req, res) => {
     name: user.username,
     featureChecklist,
     popup,
+    activePage: 'garden',
   });
 });
 
@@ -247,6 +255,136 @@ app.post("/saveCrop", async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Crop Image Helpers ───────────────────────────────────────────────────
+function cropSeed(name) {
+  return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+}
+
+function pollinationsUrl(name) {
+  const prompt = `pixel art ${name} plant sprite, 16-bit farming game style, stardew valley style, front view, centered, pure white background, no pot, no soil, no ground, no shadow, no text, full plant visible, green and healthy, pixel outlines`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=128&height=128&seed=${cropSeed(name)}&model=flux&nologo=false`;
+}
+
+async function processAndCache(response, cachePath) {
+  const raw = Buffer.from(await response.arrayBuffer());
+  const { data, info } = await sharp(raw)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const pixels = new Uint8Array(data);
+  const { width, height } = info;
+
+  // Sample background color from the 4 corners
+  function getPixel(x, y) {
+    const i = (y * width + x) * 4;
+    return [pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]];
+  }
+
+  function colorDistance(r1, g1, b1, r2, g2, b2) {
+    return Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+  }
+
+  // Average the 4 corner colors as the background sample
+  const corners = [
+    getPixel(0, 0), getPixel(width-1, 0),
+    getPixel(0, height-1), getPixel(width-1, height-1)
+  ];
+  const bgR = corners.reduce((s, c) => s + c[0], 0) / 4;
+  const bgG = corners.reduce((s, c) => s + c[1], 0) / 4;
+  const bgB = corners.reduce((s, c) => s + c[2], 0) / 4;
+
+  // Flood fill from all 4 corners to remove background
+  const TOLERANCE = 40; // how different a pixel can be and still count as background
+  const visited = new Uint8Array(width * height);
+  const queue = [];
+
+  function enqueue(x, y) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const idx = y * width + x;
+    if (visited[idx]) return;
+    const [r, g, b] = getPixel(x, y);
+    if (colorDistance(r, g, b, bgR, bgG, bgB) > TOLERANCE) return;
+    visited[idx] = 1;
+    queue.push([x, y]);
+  }
+
+  // Seed from all edges
+  for (let x = 0; x < width; x++) { enqueue(x, 0); enqueue(x, height-1); }
+  for (let y = 0; y < height; y++) { enqueue(0, y); enqueue(width-1, y); }
+
+  while (queue.length > 0) {
+    const [x, y] = queue.pop();
+    const i = (y * width + x) * 4;
+    pixels[i+3] = 0; // make transparent
+    enqueue(x+1, y); enqueue(x-1, y);
+    enqueue(x, y+1); enqueue(x, y-1);
+  }
+
+  const png = await sharp(Buffer.from(pixels), {
+    raw: { width, height, channels: 4 }
+  }).png().toBuffer();
+
+  fs.writeFileSync(cachePath, png);
+  return png;
+}
+
+async function precacheCropImage(name) {
+  const url = pollinationsUrl(name);
+  const hash = crypto.createHash('sha1').update(url).digest('hex');
+  const cachePath = require('path').join(IMAGE_CACHE_DIR, hash + '.png');
+  if (fs.existsSync(cachePath)) return; // already cached, skip entirely
+
+  await new Promise(r => setTimeout(r, 600)); // polite delay before each request
+
+  try {
+    let response = await fetch(url);
+    if (response.status === 429) {
+      console.warn(`429 for ${name}, retrying after 8s...`);
+      await new Promise(r => setTimeout(r, 8000));
+      response = await fetch(url);
+    }
+    if (!response.ok) return;
+    await processAndCache(response, cachePath);
+  } catch (err) {
+    console.error(`precache failed for ${name}:`, err.message);
+  }
+}
+
+async function precacheAll(crops, concurrency = 2) {
+  const queue = [...crops];
+  async function worker() {
+    while (queue.length > 0) {
+      const crop = queue.shift();
+      await precacheCropImage(crop.name);
+    }
+  }
+  await Promise.allSettled(Array.from({ length: concurrency }, () => worker()));
+}
+// ─────────────────────────────────────────────────────────────────────────
+
+// ─── Pollinations Image Proxy ─────────────────────────────────────────────
+// Routes crop sprite requests through the server to avoid browser-side 403s
+app.get('/crop-image', async (req, res) => {
+  const url = req.query.url;
+  if (!url || !url.startsWith('https://image.pollinations.ai/')) {
+    return res.status(400).send('Invalid image URL');
+  }
+
+  const hash = crypto.createHash('sha1').update(url).digest('hex');
+  const cachePath = require('path').join(IMAGE_CACHE_DIR, hash + '.png');
+
+  if (fs.existsSync(cachePath)) {
+    res.set('Content-Type', 'image/png');
+    res.set('Cache-Control', 'public, max-age=604800');
+    return res.sendFile(cachePath);
+  }
+
+  // Not cached yet — return 202 so the client knows to retry later
+  return res.status(202).send('Image is being generated, retry shortly');
+});
+// ─────────────────────────────────────────────────────────────────────────
+
 app.post("/api/user/skip-feature", async (req, res) => {
   if (!req.session.authenticated) return res.redirect("/gardenpage");
 
@@ -268,22 +406,17 @@ app.get("/savedpage", async (req, res) => {
   if (!user) return res.redirect("/login");
 
   const savedCrops = user.savedCrops ?? [];
+  const savedCropData = savedCrops.length > 0
+    ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
+    : [];
 
-  const savedCropData =
-    savedCrops.length > 0
-      ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
-      : [];
+  // Fire precaching in the background — don't block the page render
+  precacheAll(savedCropData, 3).catch(console.error);
 
   const featureChecklist = user.featureChecklist;
   const popup = await tutorialsCollection.findOne({ page: "f_savedtutorial" });
 
-  res.render("savedpage", {
-    user,
-    savedCrops,
-    savedCropData,
-    featureChecklist,
-    popup,
-  });
+  res.render("savedpage", { user, savedCrops, savedCropData, featureChecklist, popup, activePage: 'saved' });
 });
 
 // Profile Page
@@ -363,7 +496,7 @@ app.get("/logout", (req, res) => {
 // Zone Page
 app.get("/zonepage", async (req, res) => {
   const zones = await zoneCollection.find({}).toArray();
-  res.render("zonepage", { zones });
+  res.render("zonepage", { zones, activePage: null });
 });
 
 // Location Submit Page
@@ -406,7 +539,139 @@ app.get("/map", async (req, res) => {
     MAPTILER_KEY: process.env.MAPTILER_KEY,
     featureChecklist,
     popup,
+    activePage: 'map',
   });
+});
+
+app.get("/chatpage", async (req, res) => {
+  if (!req.session.authenticated) return res.redirect("/loginpage");
+
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+
+  res.render("chatpage", {
+    zone: user.zone || "unknown",
+    city: user.city || "unknown",
+  });
+});
+
+app.post("/api/chat", async (req, res) => {
+  if (!req.session.authenticated) return res.status(401).json({ error: "Unauthorized" });
+
+  const { message, history } = req.body;
+  const user = await userCollection.findOne({ _id: new ObjectId(req.session.userId) });
+
+  // Check daily limit
+  const today = new Date().toISOString().split("T")[0]; // "2026-05-14"
+  const lastRequestDate = user.chatLastDate || "";
+  const todayRequests = lastRequestDate === today ? (user.chatRequestsToday || 0) : 0;
+
+  if (todayRequests >= 20) {
+    return res.json({ reply: "You've reached your daily chat limit of 20 messages. Please try again tomorrow." });
+  }
+
+  // Update request count
+  await userCollection.updateOne(
+    { _id: new ObjectId(req.session.userId) },
+    { $set: { chatLastDate: today }, $inc: { chatRequestsToday: lastRequestDate === today ? 1 : 0 } }
+  );
+  // Reset count if new day
+  if (lastRequestDate !== today) {
+    await userCollection.updateOne(
+      { _id: new ObjectId(req.session.userId) },
+      { $set: { chatRequestsToday: 1, chatLastDate: today } }
+    );
+  }
+
+  const systemPrompt = `You are a helpful gardening assistant for GroCrop, a community gardening app. 
+The user is located in ${user.city || "an unknown city"}, in the ${user.zone || "unknown"} gardening zone of Metro Vancouver, BC, Canada.
+Give advice relevant to their zone and local climate where possible. 
+Keep responses concise and practical.`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [
+            ...history.map(m => ({
+              role: m.role,
+              parts: [{ text: m.text }]
+            })),
+            { role: "user", parts: [{ text: message }] }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+    console.log("Gemini raw response:", JSON.stringify(data, null, 2));
+
+    if (data.error) {
+      if (data.error.code === 429) {
+        return res.json({ reply: "I'm a little busy right now, please try again later." });
+      }
+      return res.json({ reply: "Sorry, something went wrong. Please try again." });
+    }
+
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't get a response.";
+    res.json({ reply });
+
+  } catch (err) {
+    console.error("Gemini error:", err);
+    res.status(500).json({ error: "Failed to get response." });
+  }
+});
+
+//Add Crop Page
+app.get('/addcroppage', (req, res) => {
+  if (!req.session.authenticated) return res.redirect('/loginpage');
+  res.render('addcroppage');
+});
+
+//Handling form submission for user-addded crops
+app.post('/addcroppage', upload.single('image'), async (req, res) => {
+  if (!req.session.authenticated) return res.redirect('/loginpage');
+
+  console.log('req.file:', req.file);
+  console.log('req.body:', req.body);
+
+  try {
+    const { name, category, zones } = req.body;
+
+    const information = [
+      { title: "Planting",     content: req.body.info_content_0 },
+      { title: "Watering",     content: req.body.info_content_1 },
+      { title: "Sunlight",     content: req.body.info_content_2 },
+      { title: "Plant Timing", content: req.body.info_content_3 },
+    ];
+
+    const last = await cropsCollection.find({}).sort({ id: -1 }).limit(1).toArray();
+    const lastNum = last.length > 0 ? parseInt(last[0].id) : 0;
+    const newId = String(lastNum + 1).padStart(3, '0');
+
+    await cropsCollection.insertOne({
+      id: newId,
+      name,
+      category,
+      zones,
+      image: req.file.secure_url,
+      information,
+    });
+
+    res.redirect('/gardenpage');
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send(err.message);
 });
 
 //---------//

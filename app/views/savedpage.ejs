@@ -1,37 +1,93 @@
-<%- include('partials/header', {title: 'GroCrop',cssFiles: [ 'savedpage.css'], topNavBar: true}) %>
-      <div class="content">
-        <p id="welcome-text"><%= user.username%>'s saved crops.</p>
-        <% if (savedCropData.length === 0) { %>
-        </br>
-            <p>You have no crops saved.</p>
-            <p>Try saving some!</p>
+<%- include('partials/header', {title: 'GroCrop', cssFiles: ['savedpage.css'], topNavBar: true}) %>
+
+<%
+function cropSeed(name) {
+  return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+}
+function cropImageUrl(name) {
+  const prompt = `pixel art ${name} plant sprite, 16-bit farming game style, stardew valley style, front view, centered, pure white background, no pot, no soil, no ground, no shadow, no text, full plant visible, green and healthy, pixel outlines`;
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=128&height=128&seed=${cropSeed(name)}&model=flux&nologo=false`;
+  return `/crop-image?url=${encodeURIComponent(pollinationsUrl)}`;
+}
+%>
+
+<div class="garden-wrapper">
+
+  <div class="garden-header">
+    <h1 class="garden-title">🌱 <%= user.username %>'s Garden</h1>
+    <% if (savedCropData.length > 0) { %>
+      <div class="garden-searchbar">
+        <input type="text" id="crop-search" placeholder="Search crops..." oninput="filterCrops(this.value)">
       </div>
-      <% } else { %>
-        <!-- Scroll Pane -->
-      </div>
-      <div class="searchbar">
-        <input type="text" id="crop-search" name="q" placeholder="Filter saved crops..." oninput="filterCrops(this.value)">
-      </div>
-      <div class="scroll-pane">
-        <% for (let crop of savedCropData) { %>
-          <div class="crop-card" id="crop-<%= crop.id %>">
-            <div class="card-grid">
-              <img src="/img/placeholder.png" class="crop-img" alt="crop-image" id="img-<%= crop.id %>">
-              <h1 class="crop-name"><%= crop.name %></h1>
-              <img src="/img/circle.png" alt="remove-saved-icon" class="save-button" id="<%= crop.id %>">
-              <img src="/img/dropdownicon-closed.png" alt="dropdown-icon" class="dropdown-button">
+    <% } %>
+  </div>
+
+  <% if (savedCropData.length === 0) { %>
+    <div class="empty-garden">
+      <div class="empty-icon">🪴</div>
+      <p>Your garden is empty.</p>
+      <p>Save some crops to start growing!</p>
+    </div>
+  <% } else { %>
+
+    <!-- Garden Grid -->
+    <div class="garden-scene">
+      <div class="garden-sky"></div>
+      <div class="garden-ground">
+        <div class="garden-grid" id="garden-grid">
+          <% for (let crop of savedCropData) { %>
+            <div
+              class="garden-plot"
+              id="plot-<%= crop.id %>"
+              data-crop-id="<%= crop.id %>"
+              data-crop-name="<%= crop.name %>"
+              data-crop-zones="<%= crop.zones %>"
+              data-crop-info='<%- JSON.stringify(crop.information) %>'
+              data-crop-img="<%- cropImageUrl(crop.name) %>"
+            >
+              <div class="plant-sprite">
+                <div class="pixel-loading" id="loading-<%= crop.id %>">
+                  <span></span><span></span><span></span>
+                </div>
+                <img
+                  class="plant-img"
+                  id="img-<%= crop.id %>"
+                  data-src="<%- cropImageUrl(crop.name) %>"
+                  alt="<%= crop.name %>"
+                  style="display:none;"
+                >
+              </div>
+              <img class="plot-soil" src="/img/pot.png" alt="">
+              <div class="plant-label"><%= crop.name %></div>
+              <button class="unsave-btn" id="unsave-<%= crop.id %>" data-crop-id="<%= crop.id %>" title="Remove from garden">✕</button>
             </div>
-            <p class="crop-zone">Zones: <%= crop.zones %></p>
-            <% for (let info of crop.information) { %>
-              <p class="crop-title"><%= info.title %></p>
-              <p class="crop-info"><%= info.content %></p>
-              <% } %>
-            </div>
-            <% } %>
-          </div>
-          <% } %> 
-          
-          <% if (!featureChecklist.f_savedtutorial) { %>
-            <%- include('partials/popup.ejs', { featureName: 'f_savedtutorial' }) %>
           <% } %>
-<%- include('partials/footer', { jsFiles: ['dropdown_gardenpg.js', 'searchbar.js', 'editSaved.js'], botNavBar: true }) %>
+        </div>
+      </div>
+      <div class="ground-strip"></div>
+    </div>
+
+  <% } %>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="crop-modal" id="crop-modal">
+    <div class="modal-header">
+      <img class="modal-img" id="modal-img" src="" alt="">
+      <div class="modal-title-group">
+        <h2 id="modal-crop-name"></h2>
+        <span class="modal-zones" id="modal-crop-zones"></span>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<% if (!featureChecklist.f_savedtutorial) { %>
+  <%- include('partials/popup.ejs', { featureName: 'f_savedtutorial' }) %>
+<% } %>
+
+<%- include('partials/footer', { jsFiles: ['gardenPage.js'], botNavBar: true, activePage: 'saved' }) %>

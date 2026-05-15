@@ -1,27 +1,29 @@
 <%- include('partials/header', {title: 'GroCrop',cssFiles: [ 'signuppage.css', 'styles.css'], topNavBar: false}) %>
 
 <div class="content">
-    <div class="signup-bg">
-        <h1 class="signup-text">Sign Up</h1>
-        <form action="/signupSubmit" method="POST">
-            <p>Username:</p>
-            <input name="username" placeholder="name (minimum 5-32 characters)" /><br>
-            <p>Email:</p>
-            <input name="email" placeholder="example@email.com " /><br>
-            <p>Password:</p>
-            <input name="password" type="password" placeholder="password (min 8-20 characters)" /><br>
-            <% if (locals.message) { %>
-                <p><%= message %></p>
-            <% } %>
-            <div class="signup-button-container">
-                <button id="signup-button" type="submit">Create Account</button>
+    <div class="signup-content">
+        <div class="signup-bg">
+            <h1 class="signup-text">Sign Up</h1>
+            <form action="/signupSubmit" method="POST">
+                <p>Username:</p>
+                <input name="username" placeholder="name (minimum 5-32 characters)" /><br>
+                <p>Email:</p>
+                <input name="email" placeholder="example@email.com " /><br>
+                <p>Password:</p>
+                <input name="password" type="password" placeholder="password (min 8-20 characters)" /><br>
+                <% if (locals.message) { %>
+                    <p><%= message %></p>
+                <% } %>
+                <div class="signup-button-container">
+                    <button id="signup-button" type="submit">Create Account</button>
+                </div>
+                
+                
+            </form>
+            <div class="logincheckcontainer">
+                <p class="accountchecktext">If you already have an account?</p>
+                <a class="loginref" href ="loginpage" id ="login-button">Login</a>
             </div>
-            
-            
-        </form>
-        <div class="logincheckcontainer">
-            <p class="accountchecktext">If you already have an account?</p>
-            <a class="loginref" href ="loginpage" id ="login-button">Login</a>
         </div>
     </div>
 </div>
