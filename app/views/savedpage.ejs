@@ -5,7 +5,7 @@ function cropSeed(name) {
   return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
 }
 function cropImageUrl(name) {
-  const prompt = `pixel art ${name} plant sprite, isolated plant only, no background, no soil, no dirt, no pot, no ground, pure white background, centered, clean edges, farming game style`;
+  const prompt = `pixel art ${name} plant sprite, 16-bit farming game style, stardew valley style, front view, centered, pure white background, no pot, no soil, no ground, no shadow, no text, full plant visible, green and healthy, pixel outlines`;
   const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=128&height=128&seed=${cropSeed(name)}&model=flux&nologo=false`;
   return `/crop-image?url=${encodeURIComponent(pollinationsUrl)}`;
 }

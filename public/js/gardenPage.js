@@ -185,36 +185,65 @@ addGrass(document.querySelector(".garden-ground"));
     });
   };
 
-  /* ─── Staggered Image Loader ─── */
+/* ─── Concurrent Image Loader ─── */
+const images = Array.from(document.querySelectorAll(".plant-img[data-src]"));
+const CONCURRENCY = 2;
+const RETRY_DELAY = 4000;   // how long to wait before retrying a 202
+const MAX_RETRIES = 15;     // ~1 minute of retrying before giving up
+let queueIndex = 0;
+let activeCount = 0;
 
-  const images = Array.from(document.querySelectorAll(".plant-img[data-src]"));
-  let index = 0;
+function loadImage(img) {
+  const cropId = img.id.replace("img-", "");
+  const loader = document.getElementById("loading-" + cropId);
+  const src = img.dataset.src;
+  let attempts = 0;
 
-  function loadNext() {
-    if (index >= images.length) return;
-    const img = images[index++];
-    const cropId = img.id.replace("img-", "");
+  function attempt() {
+    attempts++;
+    const url = src + "&_t=" + attempts; // prevent browser caching the 202
 
-    img.onload = () => {
-      img.style.display = "block";
-      const loader = document.getElementById("loading-" + cropId);
-      if (loader) loader.style.display = "none";
-      setTimeout(loadNext, 400);
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "blob";
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        img.src = URL.createObjectURL(xhr.response);
+        img.style.display = "block";
+        if (loader) loader.style.display = "none";
+        activeCount--;
+        scheduleNext();
+      } else if (xhr.status === 202 && attempts < MAX_RETRIES) {
+        // Server is still generating — retry after delay
+        setTimeout(attempt, RETRY_DELAY);
+      } else {
+        if (loader) loader.style.display = "none";
+        activeCount--;
+        scheduleNext();
+      }
     };
 
-    img.onerror = () => {
-      const loader = document.getElementById("loading-" + cropId);
+    xhr.onerror = () => {
       if (loader) loader.style.display = "none";
-      setTimeout(loadNext, 400);
+      activeCount--;
+      scheduleNext();
     };
 
-    img.src = img.dataset.src;
+    xhr.send();
   }
 
-  // Start 3 parallel loading chains
-  loadNext();
-  loadNext();
-  loadNext();
+  attempt();
+}
+
+function scheduleNext() {
+  while (activeCount < CONCURRENCY && queueIndex < images.length) {
+    activeCount++;
+    loadImage(images[queueIndex++]);
+  }
+}
+
+scheduleNext();
 
   /* ─── Utils ─── */
 

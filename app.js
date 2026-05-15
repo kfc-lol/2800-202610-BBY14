@@ -9,11 +9,16 @@ const { ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const { upload } = require('./public/js/cloudinary');
+const fs = require('fs');
+const crypto = require('crypto');
 
 const Joi = require("joi");
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const IMAGE_CACHE_DIR = require('path').join(__dirname, 'cache', 'crop-images');
+fs.mkdirSync(IMAGE_CACHE_DIR, { recursive: true });
 
 // Secret Information
 const mongodb_host = process.env.MONGODB_HOST;
@@ -250,52 +255,133 @@ app.post("/saveCrop", async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Crop Image Helpers ───────────────────────────────────────────────────
+function cropSeed(name) {
+  return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+}
+
+function pollinationsUrl(name) {
+  const prompt = `pixel art ${name} plant sprite, 16-bit farming game style, stardew valley style, front view, centered, pure white background, no pot, no soil, no ground, no shadow, no text, full plant visible, green and healthy, pixel outlines`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=128&height=128&seed=${cropSeed(name)}&model=flux&nologo=false`;
+}
+
+async function processAndCache(response, cachePath) {
+  const raw = Buffer.from(await response.arrayBuffer());
+  const { data, info } = await sharp(raw)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const pixels = new Uint8Array(data);
+  const { width, height } = info;
+
+  // Sample background color from the 4 corners
+  function getPixel(x, y) {
+    const i = (y * width + x) * 4;
+    return [pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]];
+  }
+
+  function colorDistance(r1, g1, b1, r2, g2, b2) {
+    return Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+  }
+
+  // Average the 4 corner colors as the background sample
+  const corners = [
+    getPixel(0, 0), getPixel(width-1, 0),
+    getPixel(0, height-1), getPixel(width-1, height-1)
+  ];
+  const bgR = corners.reduce((s, c) => s + c[0], 0) / 4;
+  const bgG = corners.reduce((s, c) => s + c[1], 0) / 4;
+  const bgB = corners.reduce((s, c) => s + c[2], 0) / 4;
+
+  // Flood fill from all 4 corners to remove background
+  const TOLERANCE = 40; // how different a pixel can be and still count as background
+  const visited = new Uint8Array(width * height);
+  const queue = [];
+
+  function enqueue(x, y) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const idx = y * width + x;
+    if (visited[idx]) return;
+    const [r, g, b] = getPixel(x, y);
+    if (colorDistance(r, g, b, bgR, bgG, bgB) > TOLERANCE) return;
+    visited[idx] = 1;
+    queue.push([x, y]);
+  }
+
+  // Seed from all edges
+  for (let x = 0; x < width; x++) { enqueue(x, 0); enqueue(x, height-1); }
+  for (let y = 0; y < height; y++) { enqueue(0, y); enqueue(width-1, y); }
+
+  while (queue.length > 0) {
+    const [x, y] = queue.pop();
+    const i = (y * width + x) * 4;
+    pixels[i+3] = 0; // make transparent
+    enqueue(x+1, y); enqueue(x-1, y);
+    enqueue(x, y+1); enqueue(x, y-1);
+  }
+
+  const png = await sharp(Buffer.from(pixels), {
+    raw: { width, height, channels: 4 }
+  }).png().toBuffer();
+
+  fs.writeFileSync(cachePath, png);
+  return png;
+}
+
+async function precacheCropImage(name) {
+  const url = pollinationsUrl(name);
+  const hash = crypto.createHash('sha1').update(url).digest('hex');
+  const cachePath = require('path').join(IMAGE_CACHE_DIR, hash + '.png');
+  if (fs.existsSync(cachePath)) return; // already cached, skip entirely
+
+  await new Promise(r => setTimeout(r, 600)); // polite delay before each request
+
+  try {
+    let response = await fetch(url);
+    if (response.status === 429) {
+      console.warn(`429 for ${name}, retrying after 8s...`);
+      await new Promise(r => setTimeout(r, 8000));
+      response = await fetch(url);
+    }
+    if (!response.ok) return;
+    await processAndCache(response, cachePath);
+  } catch (err) {
+    console.error(`precache failed for ${name}:`, err.message);
+  }
+}
+
+async function precacheAll(crops, concurrency = 2) {
+  const queue = [...crops];
+  async function worker() {
+    while (queue.length > 0) {
+      const crop = queue.shift();
+      await precacheCropImage(crop.name);
+    }
+  }
+  await Promise.allSettled(Array.from({ length: concurrency }, () => worker()));
+}
+// ─────────────────────────────────────────────────────────────────────────
+
 // ─── Pollinations Image Proxy ─────────────────────────────────────────────
 // Routes crop sprite requests through the server to avoid browser-side 403s
 app.get('/crop-image', async (req, res) => {
   const url = req.query.url;
-
   if (!url || !url.startsWith('https://image.pollinations.ai/')) {
     return res.status(400).send('Invalid image URL');
   }
 
-  try {
-    const response = await fetch(url);
+  const hash = crypto.createHash('sha1').update(url).digest('hex');
+  const cachePath = require('path').join(IMAGE_CACHE_DIR, hash + '.png');
 
-    if (!response.ok) {
-      console.error('Pollinations returned:', response.status);
-      return res.status(response.status).send('Image fetch failed');
-    }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-
-    // Remove white background and output as PNG with transparency
-    const { data, info } = await sharp(buffer)
-      .ensureAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-
-    const pixels = new Uint8Array(data);
-    for (let i = 0; i < pixels.length; i += 4) {
-      const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-      // Make near-white pixels transparent
-      if (r > 220 && g > 220 && b > 220) {
-        pixels[i + 3] = 0;
-      }
-    }
-
-    const pngBuffer = await sharp(Buffer.from(pixels), {
-      raw: { width: info.width, height: info.height, channels: 4 }
-    }).png().toBuffer();
-
-    res.set('Cache-Control', 'public, max-age=86400');
+  if (fs.existsSync(cachePath)) {
     res.set('Content-Type', 'image/png');
-    res.send(pngBuffer);
-
-  } catch (err) {
-    console.error('Crop image proxy error:', err.message);
-    res.status(500).send('Proxy error');
+    res.set('Cache-Control', 'public, max-age=604800');
+    return res.sendFile(cachePath);
   }
+
+  // Not cached yet — return 202 so the client knows to retry later
+  return res.status(202).send('Image is being generated, retry shortly');
 });
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -320,23 +406,17 @@ app.get("/savedpage", async (req, res) => {
   if (!user) return res.redirect("/login");
 
   const savedCrops = user.savedCrops ?? [];
+  const savedCropData = savedCrops.length > 0
+    ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
+    : [];
 
-  const savedCropData =
-    savedCrops.length > 0
-      ? await cropsCollection.find({ id: { $in: savedCrops } }).toArray()
-      : [];
+  // Fire precaching in the background — don't block the page render
+  precacheAll(savedCropData, 3).catch(console.error);
 
   const featureChecklist = user.featureChecklist;
   const popup = await tutorialsCollection.findOne({ page: "f_savedtutorial" });
 
-  res.render("savedpage", {
-    user,
-    savedCrops,
-    savedCropData,
-    featureChecklist,
-    popup,
-    activePage: 'saved',
-  });
+  res.render("savedpage", { user, savedCrops, savedCropData, featureChecklist, popup, activePage: 'saved' });
 });
 
 // Profile Page
